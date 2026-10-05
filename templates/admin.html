@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel — NutriVeda AI{% endblock %}
+
+{% block body %}
+<div class="content-plain" style="background:var(--green-50);">
+  <div style="max-width:1100px;margin:0 auto;">
+
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
+      <div>
+        <div class="eyebrow">Owner Dashboard</div>
+        <h2 style="font-size:1.8rem;font-weight:800;color:var(--green-900);">🔑 Admin Panel</h2>
+        <p style="color:var(--text-soft);">All registered users, their symptom-check history, and every feedback submission — in one place.</p>
+      </div>
+      <a href="/admin/logout" class="btn-outline">Log Out of Admin</a>
+    </div>
+
+    <!-- Summary tiles -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;">
+      <div class="card" style="text-align:center;">
+        <div style="font-size:1.8rem;font-weight:800;color:var(--green-700);">{{ total_users }}</div>
+        <div style="color:var(--text-mute);font-weight:600;font-size:0.85rem;">Registered Users</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:1.8rem;font-weight:800;color:var(--info);">{{ total_assessments }}</div>
+        <div style="color:var(--text-mute);font-weight:600;font-size:0.85rem;">Symptom Checks Done</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:1.8rem;font-weight:800;color:var(--accent);">{{ total_feedback }}</div>
+        <div style="color:var(--text-mute);font-weight:600;font-size:0.85rem;">Feedback Received</div>
+      </div>
+    </div>
+
+    <!-- Users -->
+    <div class="card card-wide reveal in-view" style="margin-bottom:22px;">
+      <h3 style="font-size:1.05rem;font-weight:700;color:var(--green-900);margin-bottom:10px;">👤 Users</h3>
+      {% if users %}
+      <div style="overflow-x:auto;">
+        <table class="history-table">
+          <thead><tr><th>Name</th><th>Email</th><th>Joined</th></tr></thead>
+          <tbody>
+            {% for u in users %}
+            <tr><td>{{ u.name }}</td><td>{{ u.email }}</td><td>{{ u.created_at[:16].replace('T',' ') }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}<p class="empty-state">No users yet.</p>{% endif %}
+    </div>
+
+    <!-- Assessments -->
+    <div class="card card-wide reveal in-view" style="margin-bottom:22px;">
+      <h3 style="font-size:1.05rem;font-weight:700;color:var(--green-900);margin-bottom:10px;">🩺 Symptom Check History (All Users)</h3>
+      {% if assessments %}
+      <div style="overflow-x:auto;">
+        <table class="history-table">
+          <thead><tr><th>User</th><th>Date</th><th>BMI</th><th>Detected</th><th>Count</th></tr></thead>
+          <tbody>
+            {% for a in assessments %}
+            <tr>
+              <td>{{ a.user_name }}<br><span style="color:var(--text-mute);font-size:0.75rem;">{{ a.user_email }}</span></td>
+              <td>{{ a.created_at[:16].replace('T',' ') }}</td>
+              <td>{{ a.bmi }}</td>
+              <td>{{ a.detected if a.detected else '✅ None' }}</td>
+              <td><strong style="color:{{ '#ef4444' if a.deficiency_count > 0 else 'var(--green-700)' }};">{{ a.deficiency_count }}</strong></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}<p class="empty-state">No symptom checks yet.</p>{% endif %}
+    </div>
+
+    <!-- Feedback -->
+    <div class="card card-wide reveal in-view" style="margin-bottom:22px;">
+      <h3 style="font-size:1.05rem;font-weight:700;color:var(--green-900);margin-bottom:10px;">✉️ Feedback</h3>
+      {% if feedback_rows %}
+      <div style="overflow-x:auto;">
+        <table class="history-table">
+          <thead><tr><th>Name</th><th>Rating</th><th>Liked</th><th>Message</th><th>Date</th></tr></thead>
+          <tbody>
+            {% for f in feedback_rows %}
+            <tr>
+              <td>{{ f.name }}</td>
+              <td>{{ '⭐' * f.rating }}</td>
+              <td>{{ f.liked }}</td>
+              <td style="max-width:280px;">{{ f.message }}</td>
+              <td>{{ f.created_at[:16].replace('T',' ') }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}<p class="empty-state">No feedback yet.</p>{% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

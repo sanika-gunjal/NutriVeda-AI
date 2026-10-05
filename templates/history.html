@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% set active = "history" %}
+{% block title %}Health History — NutriVeda AI{% endblock %}
+
+{% block body %}
+<style>
+.hx{max-width:1180px;margin:0 auto;padding:8px clamp(10px,3vw,18px) 40px;color:var(--text-dark)}
+.hx *{box-sizing:border-box}
+.hx-hero{position:relative;overflow:hidden;border-radius:26px;padding:30px clamp(18px,4vw,40px);color:#fff;background:linear-gradient(135deg,var(--green-800),var(--green-600) 60%,var(--turmeric));box-shadow:0 24px 50px -28px #0008}
+.hx-hero::after{content:"\1F33F";position:absolute;right:18px;top:-10px;font-size:150px;opacity:.14;transform:rotate(18deg)}
+.hx-hero h1{margin:0 0 8px;color:#fff;font-size:clamp(1.7rem,4vw,2.5rem)}
+.hx-hero p{margin:0;max-width:62ch;line-height:1.55;font-size:1.05rem;color:#fff}
+.hx-hero .hx-act{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap}
+.hx-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:99px;border:1px solid transparent;font:700 .9rem var(--font-body);cursor:pointer;text-decoration:none;transition:.2s}
+.hx-btn.pri{background:#fff;color:var(--green-800)}.hx-btn.pri:hover{transform:translateY(-2px)}
+.hx-btn.gho{background:#ffffff26;color:#fff;border-color:#ffffff66}.hx-btn.gho:hover{background:#ffffff40}
+.hx-btn.sm{padding:8px 14px;background:var(--green-100);color:var(--green-800);font-size:.82rem}.hx-btn.sm:hover{background:var(--green-200)}
+.hx-btn.sm.on{background:var(--clay);color:#fff}
+.hx-btn svg{width:16px;height:16px}
+.hx-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:20px 0}
+.hx-card{background:var(--glass,#fff);border:1px solid var(--glass-border,#0001);border-radius:20px;padding:18px;box-shadow:0 10px 30px -22px #0007}
+.hx-stat b{display:block;font:700 1.7rem var(--font-display);color:var(--green-800);line-height:1.1;overflow-wrap:anywhere}
+.hx-stat span{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-soft)}
+.hx-two{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;margin-bottom:20px}
+.hx-card h3{margin:0 0 12px;font:600 1.15rem var(--font-display)}
+.hx-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.hx-canvas{position:relative;height:250px}
+.hx-pr{display:grid;gap:14px}
+.hx-pr .row{display:grid;grid-template-columns:96px 1fr auto;gap:10px;align-items:center;font-size:.92rem}
+.hx-bar{height:8px;border-radius:99px;background:var(--green-100);overflow:hidden}.hx-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green-500),var(--turmeric))}
+.good{color:#15803d;font-weight:700}.bad{color:#c2410c;font-weight:700}.flat{color:var(--text-soft);font-weight:700}
+.hx-filters{position:sticky;top:calc(var(--nv9-h,64px) + 8px);z-index:40;display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 14px;margin-bottom:20px;background:var(--ivory,#fff);border:1px solid var(--glass-border,#0002);border-radius:18px;box-shadow:0 14px 30px -22px #0008}
+.hx-filters input,.hx-filters select{height:40px;padding:0 12px;border:1px solid var(--glass-border,#0003);border-radius:12px;background:var(--glass,#fff);color:var(--text-dark);font:500 .9rem var(--font-body);min-width:0}
+.hx-filters input,.hx-filters select{width:auto}.hx-filters .q{flex:1 1 240px;width:auto}.hx-filters label{display:flex;align-items:center;gap:6px}
+.hx-tl{position:relative;padding-left:34px}
+.hx-tl::before{content:"";position:absolute;left:11px;top:6px;bottom:6px;width:3px;border-radius:3px;background:linear-gradient(var(--green-400),var(--turmeric))}
+.hx-rec{position:relative;margin-bottom:18px;transition:transform .2s}
+.hx-rec:hover{transform:translateY(-3px)}
+.hx-rec::before{content:"";position:absolute;left:-30px;top:22px;width:15px;height:15px;border-radius:50%;background:var(--ivory,#fff);border:4px solid var(--green-600)}
+.hx-rec.sel{outline:3px solid var(--clay);outline-offset:2px;border-radius:20px}
+.hx-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.hx-when{font:700 .95rem var(--font-body)}.hx-when small{font-weight:500;color:var(--text-soft)}
+.hx-feat{display:inline-flex;align-items:center;gap:7px;padding:5px 12px 5px 6px;border-radius:99px;background:var(--green-100);color:var(--green-800);font:700 .82rem var(--font-body)}
+.hx-feat i{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--green-600);color:#fff}.hx-feat svg{width:13px;height:13px}
+.hx-st{font:700 .72rem var(--font-body);padding:3px 10px;border-radius:99px;background:#dcfce7;color:#166534}
+.hx-sec{margin:10px 0}.hx-sec h4{margin:0 0 6px;font:700 .72rem var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:var(--text-soft)}
+.hx-chips{display:flex;flex-wrap:wrap;gap:6px}
+.hx-chip{padding:4px 11px;border-radius:99px;font:600 .82rem var(--font-body);background:var(--green-50);border:1px solid var(--glass-border,#0002);overflow-wrap:anywhere}
+.hx-chip.c{background:#ffedd5;border-color:#fdba74;color:#9a3412}.hx-chip.f{background:#ecfdf3;border-color:#bbf7d0;color:#166534}
+.hx-meta{display:flex;flex-wrap:wrap;gap:16px;font-size:.9rem;margin:6px 0}.hx-meta b{color:var(--green-800)}
+.hx-foot{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.hx-empty{text-align:center;padding:50px 20px}.hx-empty .ic{font-size:64px}
+.hx-tray{position:fixed;left:50%;bottom:90px;transform:translate(-50%,30px);opacity:0;visibility:hidden;z-index:900;display:flex;gap:10px;align-items:center;padding:10px 16px;border-radius:99px;background:var(--green-800);color:#fff;box-shadow:0 20px 40px -14px #000a;transition:.25s;font-size:.9rem}
+.hx-tray.on{opacity:1;visibility:visible;transform:translate(-50%,0)}
+.hx-modal{position:fixed;inset:0;z-index:1300;display:none;align-items:center;justify-content:center;padding:14px;background:#0008}
+.hx-modal.on{display:flex}
+.hx-box{width:min(860px,100%);max-height:90dvh;overflow:auto;background:var(--ivory,#fff);color:var(--text-dark);border-radius:24px;padding:24px;box-shadow:0 40px 80px -30px #000}
+.hx-box h2{margin:0 0 4px;font-family:var(--font-display)}
+.hx-tbl{width:100%;border-collapse:collapse;font-size:.9rem;display:table}
+.hx-tbl th,.hx-tbl td{padding:10px;border-bottom:1px solid var(--glass-border,#0002);text-align:left;vertical-align:top;overflow-wrap:anywhere}.hx-tbl th{width:26%;color:var(--text-soft);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em}
+.hx-box .x{float:right}
+html[data-theme=midnight] .hx-chip.c{background:#4a2a12;color:#ffd7b0}html[data-theme=midnight] .hx-chip.f{background:#143323;color:#bff3d0}
+@media(max-width:860px){.hx-two{grid-template-columns:1fr}.hx-tl{padding-left:26px}.hx-rec::before{left:-24px}.hx-pr .row{grid-template-columns:80px 1fr auto}}
+@media(max-width:520px){.hx-filters{position:static}.hx-tray{width:calc(100% - 24px);border-radius:18px;flex-wrap:wrap;justify-content:center}}
+@media(prefers-reduced-motion:reduce){.hx-rec,.hx-btn{transition:none}}
+</style>
+
+<div class="hx" id="hx">
+  <section class="hx-hero">
+    <h1>Your Health Journey</h1>
+    {% if total %}<p>{{ insight }}</p>{% else %}<p>Every analysis you run is saved here with its date, time, inputs and results.</p>{% endif %}
+    <div class="hx-act">
+      <a class="hx-btn pri" href="/form"><i data-feather="activity"></i>New health analysis</a>
+      {% if total %}<a class="hx-btn gho" href="/history/export.csv"><i data-feather="download"></i>Download History (CSV)</a>{% endif %}
+    </div>
+  </section>
+
+  {% if total %}
+  <div class="hx-grid" id="hx-month"></div>
+
+  <div class="hx-two">
+    <section class="hx-card">
+      <h3>Health trend</h3>
+      <div class="hx-tabs" id="hx-tabs">
+        <button type="button" class="hx-btn sm on" data-m="count">Deficiencies</button>
+        <button type="button" class="hx-btn sm" data-m="bmi">BMI</button>
+        <button type="button" class="hx-btn sm" data-m="score">Health Score</button>
+      </div>
+      <div class="hx-canvas"><canvas id="hx-chart" aria-label="Health trend chart"></canvas></div>
+      <p style="margin:10px 0 0;font-size:.78rem;color:var(--text-soft)">Health score is an estimate (100, minus 12 per possible deficiency, minus 10 if BMI is outside 18.5 to 24.9). It is not a medical measure.</p>
+    </section>
+    <section class="hx-card">
+      <h3>Your progress</h3>
+      {% if progress %}
+      <p style="margin:0 0 12px;font-size:.82rem;color:var(--text-soft)">First symptom analysis vs latest</p>
+      <div class="hx-pr" id="hx-pr" data-p='{{ progress|tojson|forceescape }}'></div>
+      {% else %}
+      <p style="color:var(--text-soft);line-height:1.5">Complete at least two symptom analyses to compare Before vs Now.</p>
+      {% endif %}
+    </section>
+  </div>
+
+  <div class="hx-filters" role="search">
+    <button type="button" class="hx-btn sm on" data-p="all">All Time</button>
+    <button type="button" class="hx-btn sm" data-p="today">Today</button>
+    <button type="button" class="hx-btn sm" data-p="week">This Week</button>
+    <button type="button" class="hx-btn sm" data-p="month">This Month</button>
+    <label style="font-size:.8rem">From <input type="date" id="hx-from"></label>
+    <label style="font-size:.8rem">To <input type="date" id="hx-to"></label>
+    <select id="hx-feat" aria-label="Feature"></select>
+    <input class="q" id="hx-q" type="search" placeholder="Search symptoms, foods, nutrients or features...">
+  </div>
+  <div class="hx-tl" id="hx-list" aria-live="polite"></div>
+  {% else %}
+  <section class="hx-card hx-empty" style="margin-top:20px">
+    <div class="ic">&#127807;</div>
+    <h2 style="font-family:var(--font-display)">No health history yet</h2>
+    <p style="color:var(--text-soft);max-width:44ch;margin:0 auto 18px">Complete your first health analysis to start tracking your progress.</p>
+    <a class="hx-btn pri" style="background:var(--green-700);color:#fff" href="/form">Start Health Analysis</a>
+  </section>
+  {% endif %}
+</div>
+
+<div class="hx-tray" id="hx-tray"><span id="hx-tn"></span><button class="hx-btn sm" id="hx-go" type="button">Compare</button><button class="hx-btn sm" id="hx-clr" type="button">Clear</button></div>
+<div class="hx-modal" id="hx-modal" role="dialog" aria-modal="true"><div class="hx-box" id="hx-box"></div></div>
+{% endblock %}
+
+{% block scripts %}
+{% if total %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+(function(){
+const R={{ records_json|safe }};
+const IC={'Symptom Analysis':'activity','BMI Analysis':'heart','Weight Loss':'trending-down','Weight Gain':'trending-up','Food Diary':'book-open','Meal Planner':'cpu','Family Thali':'disc','Allergy Tracker':'alert-triangle','Cycle Tracker':'calendar','Hair Care':'scissors','Skin Care':'sun','Yoga':'wind'};
+const $=s=>document.querySelector(s), esc=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const yg=x=>nice(String(x).replace(/^vitamin([a-z])$/i,'Vitamin $1').replace(/^b12$/i,'Vitamin B12'));
+const nice=s=>String(s).replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+const dt=ts=>{const d=new Date(ts);return {d:d.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'}),t:d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}),o:d}};
+const chips=(a,c)=>a&&a.length?`<div class="hx-chips">${a.map(x=>`<span class="hx-chip ${c||''}">${esc(x)}</span>`).join('')}</div>`:'';
+const sec=(t,h)=>h?`<div class="hx-sec"><h4>${t}</h4>${h}</div>`:'';
+const top=a=>{const m={};a.forEach(x=>m[x]=(m[x]||0)+1);const e=Object.entries(m).sort((x,y)=>y[1]-x[1])[0];return e?e[0]:'-'};
+let P='all',sel=[],chartMode='count',chart;
+/* feature dropdown */
+const feats=[...new Set(R.map(r=>r.feature))].sort();
+$('#hx-feat').innerHTML='<option value="">All Features</option>'+feats.map(f=>`<option>${esc(f)}</option>`).join('');
+/* monthly summary */
+(function(){const m=new Date().toISOString().slice(0,7);const a=R.filter(r=>r.ts.startsWith(m));const bm=a.filter(r=>r.bmi).map(r=>r.bmi);
+ const items=[[a.length,'Health checks this month'],[top(a.map(r=>r.feature)),'Most used feature'],[top(a.flatMap(r=>r.report.nutrients||[])),'Most common concern'],[new Set(a.flatMap(r=>r.report.foods||[])).size,'Foods recommended'],[a.reduce((n,r)=>n+((r.report.yoga||[]).length),0),'Yoga suggestions'],[bm.length?(bm.reduce((x,y)=>x+y,0)/bm.length).toFixed(1):'-','Average BMI']];
+ $('#hx-month').innerHTML=items.map(([v,l])=>`<div class="hx-card hx-stat"><b>${esc(v)}</b><span>${l}</span></div>`).join('')})();
+/* progress */
+(function(){const el=$('#hx-pr');if(!el)return;const p=JSON.parse(el.dataset.p);
+ const row=(n,[b,a],low)=>{if(b==null||a==null)return '';const d=a-b,cls=d===0?'flat':((d<0)===low?'good':'bad'),ar=d===0?'No change':(d<0?'&#8595; Lower':'&#8593; Higher');const mx=Math.max(b,a,1);
+  return `<div><div class="row"><b>${n}</b><div class="hx-bar"><i style="width:${Math.round(a/mx*100)}%"></i></div><span class="${cls}">${ar}</span></div><div style="font-size:.82rem;color:var(--text-soft);margin-top:2px">Before: ${b} &middot; Now: ${a}</div></div>`};
+ el.innerHTML=row('Deficiencies',p.def,true)+row('BMI',p.bmi,true)+row('Symptoms',p.sym,true)})();
+/* filtering */
+function filtered(){const q=$('#hx-q').value.trim().toLowerCase(),f=$('#hx-feat').value,from=$('#hx-from').value,to=$('#hx-to').value;const now=new Date(),t0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+ return R.filter(r=>{const d=new Date(r.ts);
+  if(P==='today'&&d<t0)return false; if(P==='week'&&d<new Date(t0-6*864e5))return false; if(P==='month'&&r.ts.slice(0,7)!==now.toISOString().slice(0,7))return false;
+  if(from&&r.ts.slice(0,10)<from)return false; if(to&&r.ts.slice(0,10)>to)return false; if(f&&r.feature!==f)return false;
+  if(q){const hay=(r.feature+' '+r.symptoms.join(' ')+' '+r.detected.join(' ')+' '+(r.report.foods||[]).join(' ')+' '+(r.report.nutrients||[]).join(' ')+' '+JSON.stringify(r.report.inputs||{})).toLowerCase();if(!hay.includes(q))return false}
+  return true}).reverse()}
+function card(r){const w=dt(r.ts),rep=r.report||{},inp=rep.inputs||{};
+ const other=Object.entries(inp).filter(([k])=>!['symptoms','height_cm','weight_kg'].includes(k)&&inp[k]!=='');
+ return `<article class="hx-card hx-rec ${sel.includes(r.id)?'sel':''}" data-id="${r.id}">
+ <div class="hx-head"><div class="hx-when">${w.d} &bull; ${w.t}</div><div style="display:flex;gap:8px;align-items:center"><span class="hx-feat"><i><span data-feather="${IC[r.feature]||'activity'}"></span></i>${esc(r.feature)}</span><span class="hx-st">Completed</span></div></div>
+ ${sec('Symptoms',chips(r.symptoms))}
+ <div class="hx-meta">${r.bmi?`<span>BMI: <b>${r.bmi}</b></span>`:''}${r.feature==='Symptom Analysis'?`<span>Concerns found: <b>${r.count}</b></span>`:''}${r.score!=null?`<span>Health score: <b>${r.score}</b></span>`:''}${r.goal?`<span>Goal: <b>${esc(r.goal)}</b></span>`:''}</div>
+ ${sec('Possible nutrient concerns',chips(rep.nutrients&&rep.nutrients.length?rep.nutrients:r.detected,'c'))}
+ ${sec('Recommended foods',chips((rep.foods||[]).slice(0,8),'f'))}
+ ${sec('Lifestyle and yoga',(rep.yoga&&rep.yoga.length?chips(rep.yoga.map(x=>'Yoga for '+yg(x))):'')+((rep.lifestyle||[]).length?`<p style="margin:6px 0 0;font-size:.88rem;line-height:1.5">${esc(rep.lifestyle[0])}</p>`:''))}
+ ${other.length&&r.feature!=='Symptom Analysis'?sec('You entered',chips(other.slice(0,6).map(([k,v])=>nice(k)+': '+v))):''}
+ <div class="hx-foot"><button class="hx-btn sm" data-a="view" type="button">View Full Report</button><button class="hx-btn sm ${sel.includes(r.id)?'on':''}" data-a="cmp" type="button">${sel.includes(r.id)?'Selected':'Compare'}</button></div></article>`}
+function render(){const L=filtered();$('#hx-list').innerHTML=L.length?L.map(card).join(''):`<div class="hx-card hx-empty"><div class="ic">&#128269;</div><h3>No records match these filters</h3><p style="color:var(--text-soft)">Try a wider date range or clear the search.</p></div>`;
+ if(window.feather)feather.replace();drawChart(L.slice().reverse());tray()}
+/* chart */
+function drawChart(L){const S=L.filter(r=>r.feature==='Symptom Analysis'||chartMode==='count'&&false);const D=chartMode==='count'?L.filter(r=>r.feature==='Symptom Analysis'):chartMode==='bmi'?L.filter(r=>r.bmi):L.filter(r=>r.score!=null);
+ const lab={count:'Deficiencies detected',bmi:'BMI',score:'Health score'}[chartMode];const cs=getComputedStyle(document.documentElement);const c=cs.getPropertyValue('--green-600').trim()||'#16a34a',a=cs.getPropertyValue('--turmeric').trim()||'#f59e0b';
+ const data={labels:D.map(r=>r.ts.slice(0,10)+' '+r.ts.slice(11,16)),datasets:[{label:lab,data:D.map(r=>r[chartMode]),borderColor:c,backgroundColor:c+'33',pointBackgroundColor:a,pointRadius:5,tension:.35,fill:true}]};
+ if(chart)chart.destroy();chart=new Chart($('#hx-chart'),{type:'line',data,options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:chartMode==='count',ticks:{precision:chartMode==='bmi'?1:0}},x:{ticks:{maxRotation:40,autoSkip:true}}}}})}
+$('#hx-tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;chartMode=b.dataset.m;document.querySelectorAll('#hx-tabs button').forEach(x=>x.classList.toggle('on',x===b));drawChart(filtered().reverse())});
+/* filters */
+document.querySelector('.hx-filters').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b)return;P=b.dataset.p;$('#hx-from').value=$('#hx-to').value='';document.querySelectorAll('[data-p]').forEach(x=>x.classList.toggle('on',x===b));render()});
+['#hx-from','#hx-to'].forEach(s=>$(s).addEventListener('change',()=>{P='custom';document.querySelectorAll('[data-p]').forEach(x=>x.classList.remove('on'));render()}));
+$('#hx-feat').addEventListener('change',render);$('#hx-q').addEventListener('input',render);
+/* modal */
+const modal=$('#hx-modal'),box=$('#hx-box');const close=()=>modal.classList.remove('on');
+modal.addEventListener('click',e=>{if(e.target===modal||e.target.closest('.x'))close()});document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+function full(r){const w=dt(r.ts),rep=r.report||{},inp=rep.inputs||{};
+ const rows=[['Date and time',w.d+' at '+w.t],['Feature used',esc(r.feature)],['Your inputs',Object.entries(inp).filter(([k,v])=>v!==''&&v!=null).map(([k,v])=>`<b>${esc(nice(k))}:</b> ${esc(Array.isArray(v)?v.join(', '):v)}`).join('<br>')||'-'],['Symptoms',esc(r.symptoms.join(', '))||'-'],['BMI',r.bmi||'-'],['Possible deficiencies',esc(r.detected.join(', '))||'None detected'],['Nutrients',esc((rep.nutrients||[]).join(', '))||'-'],['Recommended foods',esc((rep.foods||[]).join(', '))||'-'],['Lifestyle advice',esc((rep.lifestyle||[]).join(' | '))||'-'],['Yoga',esc((rep.yoga||[]).map(yg).join(', '))||'-'],['Goal',esc(r.goal)||'-'],['Health score',r.score!=null?r.score:'-']];
+ box.innerHTML=`<button class="hx-btn sm x" type="button">Close</button><h2>Full report</h2><p style="color:var(--text-soft);margin:0 0 14px">${esc(r.feature)} &bull; ${w.d}</p><table class="hx-tbl">${rows.map(([a,b])=>`<tr><th>${a}</th><td>${b}</td></tr>`).join('')}</table><p style="font-size:.8rem;color:var(--text-soft);margin-top:14px">Guidance only, not a medical diagnosis. Please consult a doctor for persistent symptoms.</p>`;modal.classList.add('on')}
+function compare(){const [a,b]=sel.map(id=>R.find(r=>r.id===id)).sort((x,y)=>x.ts<y.ts?-1:1);const g=(r,f)=>f(r)||'-';
+ const F=[['Date',r=>{const w=dt(r.ts);return w.d+', '+w.t}],['Feature',r=>esc(r.feature)],['Symptoms',r=>esc(r.symptoms.join(', '))],['BMI',r=>r.bmi],['Deficiencies',r=>esc(r.detected.join(', '))],['Count',r=>String(r.count)],['Nutrients',r=>esc((r.report.nutrients||[]).join(', '))],['Recommendations',r=>esc((r.report.foods||[]).join(', '))],['Health score',r=>r.score!=null?String(r.score):'']];
+ box.innerHTML=`<button class="hx-btn sm x" type="button">Close</button><h2>Compare records</h2><p style="color:var(--text-soft);margin:0 0 14px">Earlier on the left, later on the right.</p><div style="overflow-x:auto"><table class="hx-tbl"><tr><th></th><th>Earlier</th><th>Later</th></tr>${F.map(([n,f])=>`<tr><th>${n}</th><td>${g(a,f)}</td><td>${g(b,f)}</td></tr>`).join('')}</table></div>`;modal.classList.add('on')}
+/* actions */
+$('#hx-list').addEventListener('click',e=>{const bt=e.target.closest('[data-a]');if(!bt)return;const id=+bt.closest('.hx-rec').dataset.id;
+ if(bt.dataset.a==='view')return full(R.find(r=>r.id===id));
+ sel=sel.includes(id)?sel.filter(x=>x!==id):[...sel.slice(-1),id];render()});
+function tray(){const t=$('#hx-tray');t.classList.toggle('on',sel.length>0);$('#hx-tn').textContent=sel.length===2?'2 records selected':'Select one more record to compare';$('#hx-go').style.display=sel.length===2?'':'none'}
+$('#hx-go').addEventListener('click',compare);$('#hx-clr').addEventListener('click',()=>{sel=[];render()});
+render();
+})();
+</script>
+{% endif %}
+{% endblock %}

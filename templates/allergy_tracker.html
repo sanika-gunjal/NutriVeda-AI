@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% set active = "allergy-tracker" %}
+{% block title %}Allergy Tracker — NutriVeda AI{% endblock %}
+
+{% block body %}
+<div class="content-plain" style="background:var(--green-50);">
+<div style="max-width:900px;margin:0 auto;">
+
+  <div class="food-hero reveal in-view">
+    <div class="eyebrow" style="color:rgba(255,255,255,0.85);">🚨 Stay Safe</div>
+    <h1>Allergy Tracker</h1>
+    <p>Save the foods/ingredients you react to. We'll check your Food Diary entries against this list and warn you if something matches.</p>
+  </div>
+
+  <div class="card reveal in-view" style="margin-bottom:24px;">
+    <h3 style="color:var(--green-900);font-weight:700;margin-bottom:16px;">➕ Add an allergen</h3>
+    <form method="post">
+      <div class="meal-form-grid">
+        <div class="form-group">
+          <label>Food / ingredient</label>
+          <input type="text" name="allergen" placeholder="e.g. Peanuts, Milk, Gluten, Shellfish" required>
+        </div>
+        <div class="form-group">
+          <label>Severity</label>
+          <select name="severity">
+            <option>Mild</option>
+            <option selected>Moderate</option>
+            <option>Severe</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Notes (optional)</label>
+        <input type="text" name="notes" placeholder="e.g. Causes hives, avoid entirely, check labels for traces">
+      </div>
+      <button class="btn btn-block" type="submit">Save Allergen</button>
+    </form>
+  </div>
+
+  <div class="card card-wide reveal in-view">
+    <div class="eyebrow">Your List</div>
+    <h3 style="font-size:1.05rem;font-weight:700;color:var(--green-900);margin-bottom:14px;">Tracked Allergens ({{ allergies|length }})</h3>
+
+    {% if allergies %}
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      {% for a in allergies %}
+      <div class="meal-entry">
+        <span class="tag" style="background:{{ '#fee2e2' if a.severity == 'Severe' else ('#fef3c7' if a.severity == 'Moderate' else '#dbeafe') }};color:{{ '#b91c1c' if a.severity == 'Severe' else ('#92400e' if a.severity == 'Moderate' else '#1d4ed8') }};border-color:transparent;">{{ a.severity }}</span>
+        <div class="meal-entry-name">
+          {{ a.allergen }}
+          {% if a.notes %}<div class="meal-entry-meta">{{ a.notes }}</div>{% endif %}
+        </div>
+        <form method="post" action="/allergy-tracker/delete/{{ a.id }}">
+          <button type="submit" class="meal-del-btn" title="Delete">🗑️</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">No allergens saved yet — add your first one above. 🛡️</div>
+    {% endif %}
+  </div>
+
+  <div class="alert alert-info" style="margin-top:20px;">
+    💡 Matching in the Food Diary is a simple name check (e.g. "Peanuts" flags "Peanut Chikki") — it's a helpful reminder, not a substitute for reading ingredient labels carefully.
+  </div>
+
+</div>
+</div>
+{% endblock %}

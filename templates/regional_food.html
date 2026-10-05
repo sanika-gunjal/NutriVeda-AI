@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% set active = "regional-food" %}
+{% block title %}Indian Regional Food Intelligence — NutriVeda AI{% endblock %}
+{% block body %}
+<section class="intel-hero">
+  <div class="section-wrap">
+    <div class="eyebrow" data-i18n="regional.eyebrow">India on Your Plate</div>
+    <h1 data-i18n="regional.title">Indian Regional Food Intelligence</h1>
+    <p data-i18n="regional.subtitle">Select a state and discover traditional foods, meal ideas, key nutrients and learning videos from that region.</p>
+    <div class="intel-controls">
+      <label><span data-i18n="regional.choose">Choose your state</span>
+        <select id="stateSelect"></select>
+      </label>
+      <input id="stateSearch" data-i18n-placeholder="regional.search" placeholder="Search a food, nutrient or cuisine…">
+    </div>
+  </div>
+</section>
+<section class="section-wrap">
+  <div class="regional-profile" id="regionalProfile"></div>
+  <div class="food-intel-grid" id="regionalGrid"></div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+const regionalData={{ regional_json|safe }};
+const stateSelect=document.getElementById('stateSelect'), search=document.getElementById('stateSearch');
+Object.keys(regionalData).sort().forEach(s=>stateSelect.add(new Option(s,s)));
+stateSelect.value=localStorage.getItem('nutrisense_state')||'Maharashtra';
+function renderRegional(){
+  const state=stateSelect.value; localStorage.setItem('nutrisense_state',state);
+  const q=search.value.toLowerCase().trim(), rows=regionalData[state]||[];
+  document.getElementById('regionalProfile').innerHTML=`
+    <div><span class="food-intel-kicker">REGION</span><h2>${state}</h2>
+    <p>Explore regional staples and build healthier meals around familiar foods.</p></div>
+    <div class="regional-badges"><span>🇮🇳 Regional cuisine</span><span>🥗 Nutrient-aware</span><span>📺 Video learning</span></div>`;
+  const filtered=rows.filter(r=>(r[0]+' '+r[1]+' '+r[2]).toLowerCase().includes(q));
+  document.getElementById('regionalGrid').innerHTML=filtered.map(r=>`
+    <article class="food-intel-card">
+      <div class="food-card-icon">🍛</div><div class="food-card-content">
+      <span class="mini-label">${r[3]}</span><h3>${r[0]}</h3><p>${r[1]}</p>
+      <div class="nutrient-tags">${r[2].split(', ').map(x=>`<span>${x}</span>`).join('')}</div>
+      <a class="learn-link" href="${r[4]}" target="_blank" rel="noopener">▶ Watch a recipe on YouTube</a>
+      </div></article>`).join('') || '<div class="empty-state">No matching food found. Try another search.</div>';
+}
+stateSelect.addEventListener('change',renderRegional); search.addEventListener('input',renderRegional); renderRegional();
+</script>
+{% endblock %}

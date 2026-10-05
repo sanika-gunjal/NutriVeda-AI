@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% set active = "seasonal" %}
+{% block title %}Seasonal Food Guide — NutriVeda AI{% endblock %}
+
+{% block body %}
+<div class="page-bg" style="background-image:url('https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=1600');">
+  <div class="content" style="display:flex;align-items:center;justify-content:center;min-height:100vh;">
+    <div class="card card-wide reveal in-view">
+
+      <div class="eyebrow">Seasonal Eating</div>
+      <h2 style="font-size:1.5rem;font-weight:800;color:var(--green-900);margin-bottom:4px;">🍉 Seasonal Food Guide</h2>
+      <p style="color:var(--text-soft);margin-bottom:6px;">Eat with the Indian seasons — what to favour and what to limit, as the weather changes.</p>
+
+      <div class="tab-bar" id="guideModeTabs" style="margin-bottom:6px;">
+        <button class="tab active" data-mode="modern">🌦️ Modern (3 Seasons)</button>
+        <button class="tab" data-mode="ritu">🕉️ Ayurvedic Ritucharya (6 Ritu)</button>
+      </div>
+
+      <div id="modernGuide">
+        <div class="tab-bar" id="seasonTabs">
+          <button class="tab active" data-season="summer">☀️ Summer</button>
+          <button class="tab" data-season="monsoon">🌧️ Monsoon</button>
+          <button class="tab" data-season="winter">❄️ Winter</button>
+        </div>
+        <div id="seasonResult"></div>
+      </div>
+
+      <div id="rituGuide" style="display:none;">
+        <p style="color:var(--text-soft);font-size:0.85rem;margin-bottom:12px;">Ayurveda divides the year into six ऋतू (ritu) of ~2 months each, each demanding a different Ritucharya (seasonal regimen) to stay in balance.</p>
+        <div class="tab-bar" id="rituTabs">
+          <button class="tab active" data-ritu="vasant">🌸 Vasant</button>
+          <button class="tab" data-ritu="grishma">☀️ Grishma</button>
+          <button class="tab" data-ritu="varsha">🌧️ Varsha</button>
+          <button class="tab" data-ritu="sharad">🌕 Sharad</button>
+          <button class="tab" data-ritu="hemant">🍂 Hemant</button>
+          <button class="tab" data-ritu="shishir">❄️ Shishir</button>
+        </div>
+        <div id="rituResult"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const seasonData = {
+  summer: {
+    title: "Summer — Cool & Hydrating",
+    desc: "Peak heat months (April–June) call for light, water-rich, easily digestible food that keeps the body cool from within.",
+    eat: ["Watermelon","Cucumber","Buttermilk (Chaas)","Coconut Water","Mint","Curd","Lemon Water","Muskmelon","Bottle Gourd","Onion (raw)","Sattu Drink","Pomegranate"],
+    avoid: ["Fried Snacks","Excess Tea/Coffee","Spicy Curries","Red Meat (heavy)","Alcohol"],
+    tips: [
+      ["💧","Drink water through the day rather than large amounts at once — sip steadily."],
+      ["🌅","Avoid stepping out during peak sun (12pm–4pm); if needed, cover up and hydrate before/after."],
+      ["🥒","Favour raw salads and seasonal fruits with high water content."],
+      ["🧂","Add a pinch of rock salt + lemon to drinking water to replace lost electrolytes."]
+    ]
+  },
+  monsoon: {
+    title: "Monsoon — Light & Immunity-Focused",
+    desc: "Humidity (July–September) slows digestion and raises infection risk, so the focus shifts to warm, freshly-cooked, immunity-supportive food.",
+    eat: ["Warm Soups","Turmeric Milk","Garlic","Ginger Tea","Moong Dal Khichdi","Steamed Vegetables","Bitter Gourd","Black Pepper Rasam","Jaggery","Tulsi Tea"],
+    avoid: ["Street Food / Cut Fruits","Leafy Greens (unwashed)","Seafood","Carbonated Drinks","Excess Dairy"],
+    tips: [
+      ["🍲","Eat freshly cooked, warm meals — avoid leftovers and raw salads, as bacterial growth is faster in humidity."],
+      ["🧄","Cook with ginger, garlic, turmeric and black pepper — natural anti-microbial and digestive support."],
+      ["💧","Boil or filter drinking water carefully; waterborne infections peak this season."],
+      ["🦟","Keep surroundings dry to avoid mosquito-borne illness alongside dietary care."]
+    ]
+  },
+  winter: {
+    title: "Winter — Warming & Nourishing",
+    desc: "Cold months (November–February) suit heavier, warming, nutrient-dense foods that support immunity and joint health.",
+    eat: ["Til (Sesame) Ladoo","Jaggery","Ghee","Carrots","Spinach","Methi (Fenugreek)","Dry Fruits","Bajra Roti","Soups","Turmeric Milk (Haldi Doodh)","Groundnuts","Beetroot"],
+    avoid: ["Cold Drinks/Ice Cream","Excess Raw Salads","Refrigerated Leftovers"],
+    tips: [
+      ["🌞","Get morning sunlight for 15–20 minutes — winter is a common time for vitamin D dips."],
+      ["🥜","Include nuts and sesame/jaggery preparations for sustained warmth and energy."],
+      ["🫖","Warm herbal teas (ginger, tulsi, cinnamon) support digestion and immunity."],
+      ["🧣","Pair warming foods with adequate layering — diet alone won't offset cold exposure."]
+    ]
+  }
+};
+
+function renderSeason(key) {
+  const d = seasonData[key];
+  const wrap = document.getElementById('seasonResult');
+  wrap.innerHTML = `
+    <div class="plan-card">
+      <h3 style="color:var(--green-800);font-weight:700;margin-bottom:6px;">${d.title}</h3>
+      <p style="color:var(--text-soft);font-size:0.88rem;margin-bottom:16px;">${d.desc}</p>
+
+      <p style="font-size:0.82rem;font-weight:700;color:var(--text-mid);margin-bottom:8px;">✅ Favour These</p>
+      <div class="plan-foods">${d.eat.map(f => `<span class="food-chip">🌿 ${f}</span>`).join('')}</div>
+
+      <p style="font-size:0.82rem;font-weight:700;color:var(--text-mid);margin:16px 0 8px;">🚫 Limit These</p>
+      <div class="plan-foods">${d.avoid.map(f => `<span class="tag" style="background:#fef3c7;color:#92400e;border-color:#fde68a;">${f}</span>`).join('')}</div>
+
+      <p style="font-size:0.82rem;font-weight:700;color:var(--text-mid);margin:16px 0 4px;">Lifestyle Tips</p>
+      ${d.tips.map(([icon, text]) => `<div class="plan-tip"><span class="plan-tip-icon">${icon}</span><div>${text}</div></div>`).join('')}
+    </div>
+  `;
+  wrap.firstElementChild.style.animation = 'slideUp 0.4s ease both';
+}
+
+document.querySelectorAll('#seasonTabs .tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#seasonTabs .tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderSeason(btn.dataset.season);
+  });
+});
+
+renderSeason('summer');
+
+// ==========================================================
+// AYURVEDIC RITUCHARYA — 6-Ritu extension of the seasonal guide
+// ==========================================================
+const rituData = {
+  vasant: {
+    title: "Vasant Ritu — Spring (mid-Mar to mid-May)",
+    desc: "Melting Kapha accumulated over winter tends to cause sluggishness, colds and allergies. Ritucharya calls for light, warming, Kapha-reducing food and active movement.",
+    eat: ["Barley", "Old Rice", "Honey (raw, unheated)", "Green Gram (Moong)", "Bitter Gourd", "Ginger", "Black Pepper", "Warm Herbal Teas"],
+    avoid: ["Heavy, oily, sweet food", "Cold drinks", "Curd/yoghurt at night", "Excess dairy", "Daytime sleep"],
+    tips: [["🏃","Favour vigorous exercise (vyayama) and dry powder massage (udvartana) to clear Kapha."],
+           ["🌅","Wake with sunrise; avoid daytime napping which aggravates Kapha."],
+           ["🍯","Raw honey in warm water on an empty stomach is a classic Vasant Ritucharya practice."]]
+  },
+  grishma: {
+    title: "Grishma Ritu — Summer (mid-May to mid-Jul)",
+    desc: "Peak heat depletes strength and increases Vata while digestive fire (Agni) weakens. Focus shifts to cooling, hydrating, easily digestible food.",
+    eat: ["Rice", "Wheat", "Milk", "Ghee", "Coconut Water", "Grapes", "Pomegranate", "Sweet, light foods"],
+    avoid: ["Salty, sour, pungent food", "Alcohol", "Strenuous exercise at midday", "Prolonged sun exposure"],
+    tips: [["💧","Sheetal (cooling) practices — cool baths, light cotton clothing, staying indoors midday."],
+           ["🌙","Reduce exercise intensity; a short walk in the cool morning/evening is preferable."],
+           ["🥭","Favour naturally sweet, water-rich seasonal fruit."]]
+  },
+  varsha: {
+    title: "Varsha Ritu — Monsoon (mid-Jul to mid-Sep)",
+    desc: "Digestive fire is at its weakest and Vata accumulates while Pitta begins building. Warm, light, freshly cooked, mildly sour-salty food supports digestion.",
+    eat: ["Old Grains (Rice, Wheat)", "Moong Dal Khichdi", "Warm Soups", "Ginger", "Rock Salt", "Boiled/Filtered Water", "Turmeric"],
+    avoid: ["Leafy greens (unwashed)", "Street food", "Heavy/hard-to-digest food", "Daytime sleep", "Untreated water"],
+    tips: [["🍲","Eat warm, freshly cooked meals only — avoid raw salads and leftovers."],
+           ["🧴","Panchakarma and detox routines are traditionally favoured in Varsha Ritu."],
+           ["🦠","Prioritise hygiene — waterborne illness risk is highest this ritu."]]
+  },
+  sharad: {
+    title: "Sharad Ritu — Autumn (mid-Sep to mid-Nov)",
+    desc: "Accumulated Pitta from the monsoon peaks now, showing as acidity, skin issues or irritability. Cooling, sweet, bitter foods help pacify it.",
+    eat: ["Rice", "Barley", "Ghee", "Amla (Indian Gooseberry)", "Pomegranate", "Coriander", "Fennel", "Sweet fruits"],
+    avoid: ["Sour, salty, pungent food in excess", "Curd at night", "Direct strong sun exposure", "Excess ghee/oil"],
+    tips: [["🌕","Moonlight walks and cooling pranayama (Sheetali) are traditionally recommended in Sharad."],
+           ["🍇","Favour naturally sweet, ripe seasonal fruits to pacify Pitta."],
+           ["😊","Practical stress management helps — Sharad Pitta shows up most as irritability."]]
+  },
+  hemant: {
+    title: "Hemant Ritu — Early Winter (mid-Nov to mid-Jan)",
+    desc: "Cold, clear weather naturally strengthens digestion (Agni). Ritucharya recommends nourishing, building foods — this is considered the best season for weight/muscle gain.",
+    eat: ["Til (Sesame)", "Jaggery", "Ghee", "Urad Dal", "Dry Fruits", "Milk", "Whole Grains", "Warm Soups"],
+    avoid: ["Cold drinks/food", "Light, dry, raw meals", "Excess fasting"],
+    tips: [["💪","This is Ayurveda's classic season to build strength — oil massage (abhyanga) and heavier, grounding meals suit it well."],
+           ["🌞","Morning sun exposure supports Vitamin D through the shorter, colder days."],
+           ["🥜","Sesame and jaggery preparations (til-gul) are traditional Hemant staples."]]
+  },
+  shishir: {
+    title: "Shishir Ritu — Deep Winter (mid-Jan to mid-Mar)",
+    desc: "The coldest, driest part of the year aggravates Vata further. Warm, unctuous (oily/ghee-rich), grounding food and routine are emphasised.",
+    eat: ["Warm Milk", "Ghee", "Root Vegetables", "Nuts", "Warming Spices (Ginger, Cinnamon)", "Whole Grains", "Soups"],
+    avoid: ["Cold, dry, raw food", "Skipping meals", "Excessive fasting or exposure to cold wind"],
+    tips: [["🧣","Keep the body warm and oiled — dryness and cold are the two main aggravating factors."],
+           ["🫖","Warm spiced drinks (ginger-cinnamon tea) support digestion through the cold."],
+           ["🛌","Maintain a steady routine — irregularity aggravates Vata most in Shishir."]]
+  }
+};
+
+function renderRitu(key) {
+  const d = rituData[key];
+  const wrap = document.getElementById('rituResult');
+  wrap.innerHTML = `
+    <div class="plan-card">
+      <h3 style="color:var(--green-800);font-weight:700;margin-bottom:6px;">${d.title}</h3>
+      <p style="color:var(--text-soft);font-size:0.88rem;margin-bottom:16px;">${d.desc}</p>
+      <p style="font-size:0.82rem;font-weight:700;color:var(--text-mid);margin-bottom:8px;">✅ Favour These</p>
+      <div class="plan-foods">${d.eat.map(f => `<span class="food-chip">🌿 ${f}</span>`).join('')}</div>
+      <p style="font-size:0.82rem;font-weight:700;color:var(--text-mid);margin:16px 0 8px;">🚫 Limit These</p>
+      <div class="plan-foods">${d.avoid.map(f => `<span class="tag" style="background:#fef3c7;color:#92400e;border-color:#fde68a;">${f}</span>`).join('')}</div>
+      <p style="font-size:0.82rem;font-weight:700;color:var(--text-mid);margin:16px 0 4px;">Ritucharya Tips</p>
+      ${d.tips.map(([icon, text]) => `<div class="plan-tip"><span class="plan-tip-icon">${icon}</span><div>${text}</div></div>`).join('')}
+    </div>
+  `;
+  wrap.firstElementChild.style.animation = 'slideUp 0.4s ease both';
+}
+
+document.querySelectorAll('#rituTabs .tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#rituTabs .tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderRitu(btn.dataset.ritu);
+  });
+});
+renderRitu('vasant');
+
+document.querySelectorAll('#guideModeTabs .tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#guideModeTabs .tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const mode = btn.dataset.mode;
+    document.getElementById('modernGuide').style.display = mode === 'modern' ? 'block' : 'none';
+    document.getElementById('rituGuide').style.display = mode === 'ritu' ? 'block' : 'none';
+  });
+});
+</script>
+{% endblock %}

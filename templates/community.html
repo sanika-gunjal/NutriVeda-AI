@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% set active = "community" %}
+{% block title %}Community Q&A — NutriVeda AI{% endblock %}
+
+{% block body %}
+<div class="content-plain" style="background:var(--green-50);">
+<div style="max-width:820px;margin:0 auto;">
+
+  <div class="community-hero reveal in-view">
+    <div class="eyebrow" style="color:rgba(255,255,255,0.85);">💬 Community</div>
+    <h1>Ask, answer, and learn together</h1>
+    <p>Got a nutrition question? Post it here — other members and moderators can help out.</p>
+  </div>
+
+  <div class="card reveal in-view" style="margin-bottom:24px;">
+    <h3 style="color:var(--green-900);font-weight:700;margin-bottom:16px;">Ask a question</h3>
+    {% if session.user_id %}
+    <form method="post">
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" name="title" placeholder="e.g. Best vegetarian sources of iron?" required>
+      </div>
+      <div class="form-group">
+        <label>Details (optional)</label>
+        <textarea name="body" placeholder="Add any extra context..."></textarea>
+      </div>
+      <button class="btn" type="submit">Post Question 🚀</button>
+    </form>
+    {% else %}
+    <p style="color:var(--text-soft);">
+      <a href="/login?next=/community" style="color:var(--green-700);font-weight:700;">Log in</a>
+      to post a question or reply to others.
+    </p>
+    {% endif %}
+  </div>
+
+  <div class="card reveal in-view">
+    <h3 style="color:var(--green-900);font-weight:700;margin-bottom:16px;">Recent questions</h3>
+    {% if questions %}
+      {% for q in questions %}
+      <a href="/community/{{ q.id }}" class="qa-card">
+        <h4>{{ q.title }}</h4>
+        {% if q.body %}<p>{{ q.body[:140] }}{% if q.body|length > 140 %}…{% endif %}</p>{% endif %}
+        <div class="qa-meta">
+          <span>🙋 {{ q.name }}</span>
+          <span>{{ q.created_at[:10] }}</span>
+          <span class="qa-answer-count">{{ q.answer_count }} repl{{ 'y' if q.answer_count == 1 else 'ies' }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">No questions yet — be the first to ask! 🙌</div>
+    {% endif %}
+  </div>
+
+</div>
+</div>
+{% endblock %}

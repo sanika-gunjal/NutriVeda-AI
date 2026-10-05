@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% set active = "community" %}
+{% block title %}{{ question.title }} — NutriVeda AI{% endblock %}
+
+{% block body %}
+<div class="content-plain" style="background:var(--green-50);">
+<div style="max-width:780px;margin:0 auto;">
+
+  <a href="/community" style="color:var(--green-700);font-weight:600;font-size:0.85rem;display:inline-block;margin-bottom:16px;">← Back to Community</a>
+
+  <div class="card reveal in-view" style="margin-bottom:20px;">
+    <h2 style="color:var(--green-900);font-size:1.3rem;font-weight:800;margin-bottom:8px;">{{ question.title }}</h2>
+    {% if question.body %}<p style="color:var(--text-soft);margin-bottom:12px;">{{ question.body }}</p>{% endif %}
+    <div class="qa-meta"><span>🙋 {{ question.name }}</span><span>{{ question.created_at[:16].replace('T',' ') }}</span></div>
+  </div>
+
+  <div class="card reveal in-view" style="margin-bottom:20px;">
+    <h3 style="color:var(--green-900);font-weight:700;margin-bottom:14px;">{{ answers|length }} Repl{{ 'y' if answers|length == 1 else 'ies' }}</h3>
+    {% if answers %}
+      {% for a in answers %}
+      <div class="answer-card">
+        <div class="answer-meta">{{ a.name }} · {{ a.created_at[:16].replace('T',' ') }}</div>
+        <div>{{ a.body }}</div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">No replies yet — be the first to help! 💚</div>
+    {% endif %}
+  </div>
+
+  <div class="card reveal in-view">
+    <h3 style="color:var(--green-900);font-weight:700;margin-bottom:14px;">Post a reply</h3>
+    {% if session.user_id %}
+    <form method="post">
+      <div class="form-group">
+        <textarea name="body" placeholder="Share your answer or experience..." required></textarea>
+      </div>
+      <button class="btn" type="submit">Reply 💬</button>
+    </form>
+    {% else %}
+    <p style="color:var(--text-soft);">
+      <a href="/login?next=/community/{{ question.id }}" style="color:var(--green-700);font-weight:700;">Log in</a>
+      to reply.
+    </p>
+    {% endif %}
+  </div>
+
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% set active = "pregnancy" %}
+{% block title %}Pregnancy Nutrition Guide — NutriVeda AI{% endblock %}
+
+{% block body %}
+<div class="page-bg" style="background-image:url('https://images.unsplash.com/photo-1584582396857-b8e6d5f4e5f0?w=1600');">
+  <div class="content" style="display:flex;align-items:center;justify-content:center;min-height:100vh;">
+    <div class="card card-wide reveal in-view">
+
+      <div class="eyebrow">Ayurvedic + Modern (Garbhini Paricharya)</div>
+      <h2 style="font-size:1.5rem;font-weight:800;color:var(--green-900);margin-bottom:4px;">🤰 Pregnancy Nutrition Guide</h2>
+      <p style="color:var(--text-soft);margin-bottom:6px;">Trimester-wise diet guidance combining classical Garbhini Paricharya (Ayurvedic pregnancy care) with modern nutrition science.</p>
+
+      <div class="tab-bar" id="trimTabs">
+        <button class="tab active" data-trim="1">1st Trimester</button>
+        <button class="tab" data-trim="2">2nd Trimester</button>
+        <button class="tab" data-trim="3">3rd Trimester</button>
+      </div>
+
+      <div id="trimResult"></div>
+
+      <div class="alert alert-warn" style="margin-top:18px;">
+        ⚕️ This is general educational guidance, not medical advice. Always follow your gynaecologist/dietitian's personalised recommendations, especially around supplements and any pregnancy complications.
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const trimData = {
+  1: {
+    title: "1st Trimester (Weeks 1–12) — Foundation",
+    desc: "Ayurveda calls this stage most delicate for the developing Garbha. Modern focus: folic acid for neural tube development, managing nausea, and light, easily digestible food.",
+    keyNutrients: [["Folic Acid", "Leafy greens, lentils, citrus fruits, fortified cereals — critical for neural tube development"],
+                   ["Vitamin B6", "Bananas, nuts, oats — helps with morning sickness"],
+                   ["Iron", "Moderate needs; start building stores with jaggery, dates, dry fruits"]],
+    ayurveda: ["Light, easily digestible food (Laghu Ahara) as Agni is often weak", "Milk with saffron/cardamom in small amounts", "Avoid heavy, oily, hard-to-digest food if nauseous", "Rest is emphasised — avoid overexertion"],
+    modern: ["Small, frequent meals to manage nausea", "Ginger tea/candy for morning sickness", "Stay hydrated; sip fluids between meals rather than with them", "Avoid raw/undercooked eggs, meat, unpasteurised dairy, and papaya/pineapple in excess"],
+    avoid: ["Raw papaya, pineapple in large amounts", "Alcohol & smoking", "Excess caffeine", "Unpasteurised dairy", "Raw sprouts, undercooked meat/eggs"]
+  },
+  2: {
+    title: "2nd Trimester (Weeks 13–27) — Growth",
+    desc: "Often the most comfortable trimester — appetite improves and nutrient needs rise as the baby grows rapidly. Ayurveda calls for gradually increasing nourishing (Brihana) foods.",
+    keyNutrients: [["Calcium", "Milk, curd, ragi, sesame seeds — for bone development"],
+                   ["Iron", "Leafy greens, jaggery, dates, pomegranate — blood volume expands significantly now"],
+                   ["Protein", "Dal, paneer, milk, nuts — supports rapid tissue growth"],
+                   ["Omega-3 (DHA)", "Walnuts, flaxseed, fish (if non-veg) — brain development"]],
+    ayurveda: ["Increase Ghee and warm, nourishing (Brihana) foods gradually", "Milk with ghee and a pinch of turmeric daily is a classical recommendation", "Continue light exercise and daily oil massage (self, gentle) as tolerated"],
+    modern: ["Increase overall calorie intake modestly (~300–350 kcal/day extra)", "Prioritise iron + calcium — don't take iron and calcium tablets together, space by a few hours", "Include vitamin C with iron-rich meals (e.g. lemon with dal) to boost absorption"],
+    avoid: ["Excess salty/processed food (worsens water retention)", "Alcohol & smoking", "Excess caffeine", "Raw/unwashed produce"]
+  },
+  3: {
+    title: "3rd Trimester (Weeks 28–40) — Preparation",
+    desc: "Baby gains weight fastest now; digestion can feel compressed as the uterus grows. Ayurveda favours smaller, warm, easily digestible meals and preparation for birth (Garbhini Paricharya near term).",
+    keyNutrients: [["Calcium", "Continue milk/curd/ragi — bone mineralisation peaks now"],
+                   ["Iron", "Continue leafy greens, jaggery — to build reserves for delivery"],
+                   ["Fibre", "Whole grains, fruits, vegetables — constipation is common as digestion slows"],
+                   ["Omega-3 (DHA)", "Continue nuts/flaxseed/fish — final trimester is key for brain growth"]],
+    ayurveda: ["Smaller, more frequent warm meals as stomach space reduces", "Ghee-based preparations to ease elimination and nourish", "Classical texts recommend specific herbal/ghee preparations near term — only under a qualified Ayurvedic physician's guidance"],
+    modern: ["Watch for excess sodium/sudden swelling — flag to your doctor", "Stay well hydrated, adequate fibre to prevent constipation", "Continue moderate exercise/walking unless advised otherwise", "Discuss iron/calcium supplement dosing with your doctor as needs peak"],
+    avoid: ["Large, heavy meals late at night", "Excess caffeine close to bedtime", "Alcohol & smoking", "Unpasteurised dairy, raw/undercooked food"]
+  }
+};
+
+function renderTrim(t) {
+  const d = trimData[t];
+  const wrap = document.getElementById('trimResult');
+  wrap.innerHTML = `
+    <div class="plan-card">
+      <h3 style="color:var(--green-800);font-weight:700;margin-bottom:6px;">${d.title}</h3>
+      <p style="color:var(--text-soft);font-size:0.88rem;margin-bottom:16px;">${d.desc}</p>
+
+      <p style="font-size:0.82rem;font-weight:700;color:var(--text-mid);margin-bottom:8px;">🧬 Key Nutrients to Focus On</p>
+      ${d.keyNutrients.map(([n, src]) => `<div class="plan-tip"><span class="plan-tip-icon">🥗</span><div><strong>${n}</strong> — ${src}</div></div>`).join('')}
+
+      <p style="font-size:0.82rem;font-weight:700;color:var(--text-mid);margin:16px 0 8px;">🕉️ Ayurvedic Guidance (Garbhini Paricharya)</p>
+      ${d.ayurveda.map(t => `<div class="plan-tip"><span class="plan-tip-icon">🌿</span><div>${t}</div></div>`).join('')}
+
+      <p style="font-size:0.82rem;font-weight:700;color:var(--text-mid);margin:16px 0 8px;">🔬 Modern Nutrition Tips</p>
+      ${d.modern.map(t => `<div class="plan-tip"><span class="plan-tip-icon">💡</span><div>${t}</div></div>`).join('')}
+
+      <p style="font-size:0.82rem;font-weight:700;color:var(--text-mid);margin:16px 0 8px;">🚫 Avoid</p>
+      <div class="plan-foods">${d.avoid.map(f => `<span class="tag" style="background:#fef3c7;color:#92400e;border-color:#fde68a;">${f}</span>`).join('')}</div>
+    </div>
+  `;
+  wrap.firstElementChild.style.animation = 'slideUp 0.4s ease both';
+}
+
+document.querySelectorAll('#trimTabs .tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#trimTabs .tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderTrim(btn.dataset.trim);
+  });
+});
+renderTrim(1);
+</script>
+{% endblock %}

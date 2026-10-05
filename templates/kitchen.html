@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% set active = "kitchen" %}
+{% block title %}What's in My Kitchen? — NutriVeda AI{% endblock %}
+{% block body %}
+<section class="intel-hero kitchen-hero">
+  <div class="section-wrap">
+    <div class="eyebrow" data-i18n="kitchen.eyebrow">Smart Kitchen</div>
+    <h1 data-i18n="kitchen.title">What's in My Kitchen?</h1>
+    <p data-i18n="kitchen.subtitle">Select ingredients you already have. NutriVeda turns them into Indian recipe ideas and shows the nutrition value of each option.</p>
+  </div>
+</section>
+<section class="section-wrap">
+  <div class="kitchen-layout">
+    <aside class="ingredient-panel">
+      <h3 data-i18n="kitchen.pick">Pick your ingredients</h3>
+      <input id="ingredientSearch" data-i18n-placeholder="kitchen.search" placeholder="Search ingredients…">
+      <div id="ingredientList" class="ingredient-list"></div>
+      <div class="selected-count"><span id="selectedCount">0</span> ingredients selected</div>
+    </aside>
+    <main>
+      <div class="smart-result-head"><div><span class="food-intel-kicker">RECIPE MATCHER</span><h2 id="recipeHeading">Select ingredients to begin</h2></div><button class="btn-outline" id="clearKitchen">Clear</button></div>
+      <div id="recipeGrid" class="food-intel-grid"></div>
+      <div class="youtube-source-box">📺 <strong>Learn while you cook:</strong> each recipe includes a YouTube learning link. Always verify cooking safety, allergens and portions.</div>
+    </main>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+const kitchenData={{ kitchen_json|safe }}, selected=new Set();
+const ingList=document.getElementById('ingredientList'), q=document.getElementById('ingredientSearch');
+const ingredients=[...new Set(kitchenData.map(x=>x[0]))];
+function drawIngredients(){
+ const term=q.value.toLowerCase(); ingList.innerHTML=ingredients.filter(x=>x.toLowerCase().includes(term)).map(x=>`
+ <label class="ingredient-option"><input type="checkbox" value="${x}" ${selected.has(x)?'checked':''}><span>${x}</span></label>`).join('');
+ ingList.querySelectorAll('input').forEach(i=>i.addEventListener('change',()=>{i.checked?selected.add(i.value):selected.delete(i.value);renderRecipes();}));
+}
+function renderRecipes(){
+ document.getElementById('selectedCount').textContent=selected.size;
+ const matches=kitchenData.filter(x=>selected.has(x[0]));
+ document.getElementById('recipeHeading').textContent=selected.size?`${matches.length} recipe idea${matches.length===1?'':'s'} from your kitchen`:'Select ingredients to begin';
+ document.getElementById('recipeGrid').innerHTML=matches.map(r=>`
+ <article class="food-intel-card recipe-card"><div class="food-card-icon">👩‍🍳</div><div class="food-card-content">
+ <span class="mini-label">INDIAN RECIPE</span><h3>${r[2]}</h3><p>Uses: ${r[1].split(', ').join(', ')}</p>
+ <div class="nutrition-fact-box"><strong>Nutrition facts</strong><p>${r[3]}</p></div>
+ <a class="learn-link" href="${r[4]}" target="_blank" rel="noopener">▶ Watch recipe on YouTube</a>
+ </div></article>`).join('') || '<div class="empty-state">Choose 1 or more ingredients to see matching recipes.</div>';
+}
+q.addEventListener('input',drawIngredients); document.getElementById('clearKitchen').onclick=()=>{selected.clear();drawIngredients();renderRecipes()}; drawIngredients(); renderRecipes();
+</script>
+{% endblock %}

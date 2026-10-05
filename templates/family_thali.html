@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% set active = "family-thali" %}
+{% block title %}Family Thali Comparison — NutriVeda AI{% endblock %}
+
+{% block body %}
+<div class="content-plain" style="background:var(--green-50);">
+  <div style="max-width:1000px;margin:0 auto;">
+
+    <div class="page-banner">
+      <div class="page-banner-img" style="background-image:url('https://images.unsplash.com/photo-1567337710282-00832b415979?w=1600&q=80&auto=format&fit=crop');"></div>
+      <div class="page-banner-content">
+        <span class="page-banner-icon">🍛</span>
+        <h1>Family Thali Comparison</h1>
+        <p>Log what everyone at home ate today and see who's covered — and who's falling short.</p>
+      </div>
+    </div>
+
+    {% if family_alerts %}
+    <div class="card card-wide" style="margin-bottom:20px; padding:16px 20px;">
+      <div class="eyebrow">Today's Family Gaps</div>
+      <ul style="margin:6px 0 0; padding-left:18px; font-size:0.85rem; color:var(--text-mid); line-height:1.7;">
+        {% for alert in family_alerts %}
+        <li>{{ alert }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <!-- Add member -->
+    <div class="card card-wide" style="margin-bottom:20px;">
+      <div class="eyebrow">Household</div>
+      <h3 style="font-size:1.05rem;font-weight:700;color:var(--green-900);margin-bottom:12px;">Add a Family Member</h3>
+      <form method="POST" style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+        <input type="hidden" name="action" value="add_member">
+        <div class="form-group" style="margin:0; flex:1; min-width:140px;">
+          <label>Name</label>
+          <input type="text" name="member_name" placeholder="e.g. Aai" required>
+        </div>
+        <div class="form-group" style="margin:0; width:90px;">
+          <label>Age</label>
+          <input type="number" name="member_age" min="1" max="120" placeholder="45">
+        </div>
+        <div class="form-group" style="margin:0; flex:1; min-width:140px;">
+          <label>Role (optional)</label>
+          <input type="text" name="member_role" placeholder="e.g. Mother">
+        </div>
+        <button type="submit" class="btn" style="margin-bottom:16px;">+ Add Member</button>
+      </form>
+    </div>
+
+    {% if not members %}
+    <div class="card card-wide empty-state" style="text-align:center; padding:40px 24px;">
+      <p style="color:var(--text-soft); font-size:0.9rem;">No family members added yet. Add everyone in the house above, then log today's thali for each of them.</p>
+    </div>
+    {% else %}
+
+    <!-- Log thali per member -->
+    <div class="card card-wide" style="margin-bottom:20px;">
+      <div class="eyebrow">Today · {{ today }}</div>
+      <h3 style="font-size:1.05rem;font-weight:700;color:var(--green-900);margin-bottom:14px;">Log Today's Thali</h3>
+
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        {% for row in comparison %}
+        <details style="border:1px solid var(--green-100); border-radius:var(--radius-sm); padding:12px 16px;" {% if not row.logged %}open{% endif %}>
+          <summary style="cursor:pointer; font-weight:700; color:var(--text-dark); font-size:0.92rem; display:flex; align-items:center; justify-content:space-between;">
+            <span>{{ row.member.name }}{% if row.member.role %} <span style="font-weight:500; color:var(--text-mute); font-size:0.78rem;">· {{ row.member.role }}</span>{% endif %}</span>
+            <span style="font-size:0.74rem; font-weight:700; color:{{ 'var(--green-700)' if row.logged else 'var(--text-mute)' }};">
+              {{ 'Logged' if row.logged else 'Not logged today' }}
+            </span>
+          </summary>
+
+          <form method="POST" style="margin-top:12px;">
+            <input type="hidden" name="action" value="log_thali">
+            <input type="hidden" name="member_id" value="{{ row.member.id }}">
+            <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:8px 14px; margin-bottom:12px;">
+              {% for item in food_items %}
+              <label style="display:flex; align-items:center; gap:7px; font-size:0.82rem; color:var(--text-mid);">
+                <input type="checkbox" name="items" value="{{ item }}" {% if item in row['items'] %}checked{% endif %} style="width:auto;">
+                {{ item }}
+              </label>
+              {% endfor %}
+            </div>
+            <button type="submit" class="btn-outline" style="font-size:0.8rem; padding:8px 18px;">Save {{ row.member.name }}'s Thali</button>
+          </form>
+
+          <form method="POST" style="display:inline;" onsubmit="return confirm('Remove {{ row.member.name }} from your family list?');">
+            <input type="hidden" name="action" value="delete_member">
+            <input type="hidden" name="member_id" value="{{ row.member.id }}">
+            <button type="submit" style="background:none; border:none; color:var(--danger); font-size:0.76rem; cursor:pointer; margin-top:10px; padding:0;">Remove member</button>
+          </form>
+        </details>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Comparison dashboard -->
+    <div class="card card-wide" style="margin-bottom:32px;">
+      <div class="eyebrow">Comparison</div>
+      <h3 style="font-size:1.05rem;font-weight:700;color:var(--green-900);margin-bottom:14px;">Nutrient Coverage by Family Member</h3>
+
+      <div style="overflow-x:auto;">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Member</th>
+              {% for cat in categories %}
+              <th>{{ cat }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in comparison %}
+            <tr>
+              <td style="font-weight:700; color:var(--text-dark);">{{ row.member.name }}</td>
+              {% for cat in categories %}
+              <td>
+                {% if not row.logged %}
+                <span style="color:var(--text-mute); font-size:0.78rem;">—</span>
+                {% elif cat in row.covered %}
+                <span style="color:var(--green-700); font-weight:700;">✓</span>
+                {% else %}
+                <span style="color:#c0392b; font-weight:700;">⚠</span>
+                {% endif %}
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:0.74rem; color:var(--text-mute); margin-top:12px;">
+        ✓ = covered by at least one logged food today · ⚠ = no logged food covers this category ·
+        — = thali not logged yet. This is a quick checklist based on typical Indian foods, not a
+        lab-measured nutrient count.
+      </p>
+    </div>
+
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

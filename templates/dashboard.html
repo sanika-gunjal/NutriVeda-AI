@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+{% set active = "dashboard" %}
+{% block title %}Dashboard — NutriVeda AI{% endblock %}
+
+{% block body %}
+<div class="content-plain" style="background:var(--green-50);">
+  <div style="max-width:900px;margin:0 auto;">
+
+    <!-- Photo banner -->
+    <div class="page-banner">
+      <div class="page-banner-img" style="background-image:url('https://images.unsplash.com/photo-1576021182211-9ea8dced3690?w=1600&q=80&auto=format&fit=crop');"></div>
+      <div class="page-banner-content">
+        <span class="page-banner-icon">📊</span>
+        <h1>Welcome back, {{ name }} 👋</h1>
+        <p>Here's your personalised health overview. Explore any module below.</p>
+      </div>
+    </div>
+
+
+
+    <!-- Symptom history summary -->
+    <div class="card card-wide reveal in-view" style="margin-bottom:24px;">
+      <div class="eyebrow">Your Progress</div>
+      <h3 style="font-size:1.1rem;font-weight:700;color:var(--green-900);margin-bottom:4px;">Symptom Tracking</h3>
+
+      {% if total_checks and total_checks > 0 %}
+      <p style="color:var(--text-soft);font-size:0.85rem;margin-bottom:16px;">
+        You've completed <strong>{{ total_checks }}</strong> symptom check{{ 's' if total_checks != 1 else '' }} so far.
+        {% if latest %}Your most recent check on {{ latest.created_at[:10] }} found
+        <strong>{{ latest.deficiency_count }}</strong> possible deficienc{{ 'ies' if latest.deficiency_count != 1 else 'y' }}.{% endif %}
+      </p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px;">
+        {% for h in history %}
+        <div style="background:var(--green-50);border-radius:var(--radius-sm);padding:10px 14px;min-width:120px;">
+          <div style="font-size:0.7rem;color:var(--text-mute);font-weight:700;">{{ h.created_at[:10] }}</div>
+          <div style="font-size:1.1rem;font-weight:800;color:{{ '#ef4444' if h.deficiency_count > 0 else 'var(--green-700)' }};">
+            {{ h.deficiency_count }} found
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <a href="/history" class="btn-outline" style="margin-top:10px;display:inline-flex;">📈 View Full History →</a>
+      {% else %}
+      <p style="color:var(--text-soft);font-size:0.85rem;margin-bottom:14px;">No symptom checks yet — take your first check to start tracking improvement over time.</p>
+      <a href="/symptoms" class="btn">🩺 Start Symptom Check</a>
+      {% endif %}
+    </div>
+
+    <!-- Quick tiles -->
+    <div class="dashboard-grid reveal-stagger in-view">
+      <a href="/symptoms" class="dash-tile">
+        <span class="dash-tile-icon">🩺</span>
+        <span class="dash-tile-label">Symptom Check</span>
+        <span style="font-size:0.74rem;color:var(--text-mute);">Detect deficiencies</span>
+      </a>
+      <a href="/deficiency" class="dash-tile">
+        <span class="dash-tile-icon">🥗</span>
+        <span class="dash-tile-label">Deficiency Guide</span>
+        <span style="font-size:0.74rem;color:var(--text-mute);">Foods & lifestyle</span>
+      </a>
+      <a href="/nutrients" class="dash-tile">
+        <span class="dash-tile-icon">🧬</span>
+        <span class="dash-tile-label">Nutrient Encyclopedia</span>
+        <span style="font-size:0.74rem;color:var(--text-mute);">All vitamins & minerals</span>
+      </a>
+      <a href="/bmi" class="dash-tile">
+        <span class="dash-tile-icon">📊</span>
+        <span class="dash-tile-label">BMI Calculator</span>
+        <span style="font-size:0.74rem;color:var(--text-mute);">Know your range</span>
+      </a>
+      <a href="/weightloss" class="dash-tile">
+        <span class="dash-tile-icon">🏃</span>
+        <span class="dash-tile-label">Weight Loss</span>
+        <span style="font-size:0.74rem;color:var(--text-mute);">Personalised plan</span>
+      </a>
+      <a href="/weightgain" class="dash-tile">
+        <span class="dash-tile-icon">💪</span>
+        <span class="dash-tile-label">Weight Gain</span>
+        <span style="font-size:0.74rem;color:var(--text-mute);">Build healthy mass</span>
+      </a>
+      <a href="/haircare" class="dash-tile">
+        <span class="dash-tile-icon">💇</span>
+        <span class="dash-tile-label">Hair Care</span>
+        <span style="font-size:0.74rem;color:var(--text-mute);">Problem solutions</span>
+      </a>
+      <a href="/skincare" class="dash-tile">
+        <span class="dash-tile-icon">💆</span>
+        <span class="dash-tile-label">Skin Care</span>
+        <span style="font-size:0.74rem;color:var(--text-mute);">Glow tips</span>
+      </a>
+      <a href="/feedback" class="dash-tile">
+        <span class="dash-tile-icon">✉️</span>
+        <span class="dash-tile-label">Feedback</span>
+        <span style="font-size:0.74rem;color:var(--text-mute);">Share thoughts</span>
+      </a>
+      <a href="/seasonal" class="dash-tile">
+        <span class="dash-tile-icon">🍉</span>
+        <span class="dash-tile-label">Seasonal Food Guide</span>
+        <span style="font-size:0.74rem;color:var(--text-mute);">Summer/winter/monsoon</span>
+      </a>
+      <a href="/protein" class="dash-tile">
+        <span class="dash-tile-icon">🌱</span>
+        <span class="dash-tile-label">Protein Calculator</span>
+        <span style="font-size:0.74rem;color:var(--text-mute);">Pure vegetarian targets</span>
+      </a>
+      <a href="/workout" class="dash-tile">
+        <span class="dash-tile-icon">🏋️</span>
+        <span class="dash-tile-label">Home Workout Planner</span>
+        <span style="font-size:0.74rem;color:var(--text-mute);">No-equipment routines</span>
+      </a>
+      <a href="/yoga" class="dash-tile">
+        <span class="dash-tile-icon">🧘</span>
+        <span class="dash-tile-label">Yoga for Deficiencies</span>
+        <span style="font-size:0.74rem;color:var(--text-mute);">Calcium, iron, stress</span>
+      </a>
+      <a href="/steps" class="dash-tile">
+        <span class="dash-tile-icon">🚶</span>
+        <span class="dash-tile-label">Step Goal Tracker</span>
+        <span style="font-size:0.74rem;color:var(--text-mute);">Set & track daily steps</span>
+      </a>
+      <a href="/immunity" class="dash-tile">
+        <span class="dash-tile-icon">🍵</span>
+        <span class="dash-tile-label">Immunity Recipes</span>
+        <span style="font-size:0.74rem;color:var(--text-mute);">Kadha, golden milk, amla</span>
+      </a>
+      <a href="/resources" class="dash-tile">
+        <span class="dash-tile-icon">📺</span>
+        <span class="dash-tile-label">Video & Official Resources</span>
+        <span style="font-size:0.74rem;color:var(--text-mute);">YouTube + WHO/ICMR/NIH</span>
+      </a>
+    </div>
+
+    <!-- Chart card -->
+    <div class="card card-wide reveal in-view" style="margin-top:28px;">
+      <div class="eyebrow">Health Overview</div>
+      <h3 style="font-size:1.1rem;font-weight:700;color:var(--green-900);margin-bottom:4px;">Wellness Indicators</h3>
+      <p style="color:var(--text-soft);font-size:0.85rem;margin-bottom:16px;">A snapshot of your key health parameters (sample data — complete modules to track real scores).</p>
+
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+        {% for label, val, color in [('BMI Score','72','#a855f7'),('Nutrition','68','#f59e0b'),('Fitness','55','#3b82f6'),('Lifestyle','80','#8b5cf6')] %}
+        <div style="text-align:center;">
+          <div style="font-size:1.4rem;font-weight:800;color:{{ color }};">{{ val }}%</div>
+          <div style="font-size:0.75rem;color:var(--text-mute);font-weight:600;">{{ label }}</div>
+          <div class="progress-bar-wrap" style="margin-top:6px;">
+            <div class="progress-bar-fill" style="width:{{ val }}%;background:{{ color }};"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <canvas id="dashChart" style="max-height:220px;"></canvas>
+    </div>
+
+    <!-- Water intake tracker -->
+    <div class="card card-wide reveal in-view" style="margin-top:24px;">
+      <div class="eyebrow">Daily Habit</div>
+      <h3 style="font-size:1.1rem;font-weight:700;color:var(--green-900);margin-bottom:4px;">💧 Water Intake Tracker</h3>
+      <p style="color:var(--text-soft);font-size:0.85rem;margin-bottom:16px;">Tap a glass every time you drink one. Your goal resets each day.</p>
+
+      <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
+        <div id="waterGlasses" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+        <div style="margin-left:auto;text-align:right;">
+          <div id="waterCount" style="font-size:1.6rem;font-weight:800;color:var(--info);">0 / 8</div>
+          <div style="font-size:0.72rem;color:var(--text-mute);font-weight:600;">glasses today</div>
+        </div>
+      </div>
+      <div class="progress-bar-wrap" style="margin-top:14px;">
+        <div id="waterBarFill" class="progress-bar-fill" style="width:0%;background:linear-gradient(90deg,#3b82f6,#60a5fa);"></div>
+      </div>
+      <p id="waterMsg" style="margin-top:10px;font-size:0.82rem;color:var(--green-700);font-weight:600;min-height:1.2em;"></p>
+    </div>
+
+    <!-- Tips banner -->
+    <div class="alert alert-info" style="margin-top:20px;animation:slideUp 0.7s ease both;">
+      💡 <strong>Tip of the day:</strong> Drink 8–10 glasses of water daily. Dehydration is a hidden cause of fatigue, skin issues, and poor digestion.
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('dashChart').getContext('2d');
+new Chart(ctx, {
+  type: 'radar',
+  data: {
+    labels: ['BMI','Nutrition','Fitness','Lifestyle','Sleep','Hydration'],
+    datasets: [{
+      label: '{{ name }}',
+      data: [72, 68, 55, 80, 65, 70],
+      backgroundColor: 'rgba(64,145,108,0.15)',
+      borderColor: '#a855f7',
+      borderWidth: 2.5,
+      pointBackgroundColor: '#a855f7',
+      pointRadius: 4
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      r: {
+        min: 0, max: 100,
+        ticks: { stepSize: 25, font: { size: 10 } },
+        grid: { color: 'rgba(0,0,0,0.06)' },
+        pointLabels: { font: { size: 11, weight: '600' } }
+      }
+    }
+  }
+});
+
+// ==========================================================
+// WATER INTAKE TRACKER — tap glasses to log water, resets daily,
+// remembers today's count in this browser via localStorage.
+// ==========================================================
+(function () {
+  const GOAL = 8;
+  const todayKey = 'ns-water-' + new Date().toISOString().slice(0, 10);
+  let count = parseInt(localStorage.getItem(todayKey) || '0', 10);
+
+  const wrap = document.getElementById('waterGlasses');
+  const countEl = document.getElementById('waterCount');
+  const barEl = document.getElementById('waterBarFill');
+  const msgEl = document.getElementById('waterMsg');
+
+  const messages = [
+    "Let's get hydrated! 💧",
+    "Nice, keep sipping!",
+    "Great pace today.",
+    "Halfway to your goal!",
+    "You're doing great 💪",
+    "Almost there!",
+    "One more to go!",
+    "🎉 Goal reached — amazing!"
+  ];
+
+  function render() {
+    wrap.innerHTML = '';
+    for (let i = 0; i < GOAL; i++) {
+      const glass = document.createElement('button');
+      glass.type = 'button';
+      glass.textContent = '🥛';
+      glass.setAttribute('aria-label', 'Log a glass of water');
+      glass.style.cssText = 'font-size:1.5rem;background:none;border:none;cursor:pointer;transition:transform .2s, filter .2s;filter:grayscale(1) opacity(0.45);';
+      if (i < count) glass.style.filter = 'none';
+      glass.addEventListener('mouseenter', () => glass.style.transform = 'translateY(-3px) scale(1.15)');
+      glass.addEventListener('mouseleave', () => glass.style.transform = '');
+      glass.addEventListener('click', () => {
+        count = (i < count) ? i : i + 1;
+        localStorage.setItem(todayKey, count);
+        render();
+      });
+      wrap.appendChild(glass);
+    }
+    countEl.textContent = count + ' / ' + GOAL;
+    barEl.style.width = Math.min(100, (count / GOAL) * 100) + '%';
+    msgEl.textContent = count > 0 ? messages[Math.min(count, GOAL) - 1] : '';
+  }
+
+  render();
+})();
+</script>
+{% endblock %}

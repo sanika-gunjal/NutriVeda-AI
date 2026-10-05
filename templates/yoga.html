@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% set active = "yoga" %}
+{% block title %}Yoga for Deficiencies — NutriVeda AI{% endblock %}
+
+{% block body %}
+<div class="content-plain" style="padding:24px 5vw 10px;background:linear-gradient(160deg,var(--ivory),var(--green-50));">
+  <div class="card card-wide reveal in-view" style="max-width:1100px;margin:0 auto;">
+    <div class="yg-hero">
+      <div class="yg-pacer">
+        <strong style="font:800 1.1rem var(--font-display)">Breathing pacer</strong>
+        <div class="yg-orb" id="orb">Ready</div>
+        <select id="pacerMode" style="padding:6px 10px;border-radius:10px;border:0;font-weight:700"><option value="4,2,6">Calm 4-2-6</option><option value="4,4,4">Box 4-4-4</option><option value="4,7,8">Sleep 4-7-8</option></select>
+        <button type="button" class="pose-timer" id="pacerBtn" style="background:#fff;color:var(--green-700)">Start breathing</button>
+      </div>
+      <div class="yg-streak"><div>Your practice streak</div><b id="streakNum">0</b> <span>days</span>
+        <p style="margin:6px 0 10px;color:var(--text-mid)">Mark at least one pose done each day to grow the streak.</p>
+        <div id="weekDots" style="display:flex;gap:6px"></div>
+        <div style="margin-top:10px;font-weight:700">Poses done today: <span id="doneToday">0</span></div></div>
+    </div>
+    <div class="tab-bar" id="yogaTabs"></div>
+    <div class="yg-filters">
+      <select id="lvl"><option value="">All levels</option><option>Easy</option><option>Medium</option><option>Hard</option></select>
+      <input id="q" placeholder="Search a pose…" aria-label="Search pose">
+    </div>
+    <div id="yogaResult"></div>
+    <div class="alert alert-warn" style="margin-top:14px">Yoga supports wellbeing and does not treat deficiencies. Stop if you feel pain or dizziness, and ask a doctor first if pregnant or managing a condition.</div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// emoji|Pose|Level|Time|steps (;)|caution
+const Y={
+ calcium:["🦴 Calcium","bone","Weight-bearing balance and spine poses that load the bones gently.","Pair with 15–20 min of morning sun for vitamin D.",[
+  "🌳|Vrikshasana (Tree)|Easy|30s each side|Stand tall;Place foot on calf or thigh, never the knee;Palms together, gaze at one point|Hold a wall if unsteady",
+  "🌉|Setu Bandhasana (Bridge)|Medium|30s ×3|Lie down, knees bent;Press feet, lift hips;Keep neck relaxed|Skip with neck injury",
+  "🐫|Ustrasana (Camel)|Hard|20s|Kneel, hands on lower back;Lift chest, ease back;Come up slowly|Avoid with back problems",
+  "⛰️|Tadasana (Mountain)|Easy|1 min|Feet hip-width;Lengthen spine;Breathe into the soles|None"]],
+ iron:["🩸 Iron","iron","Circulation poses that wake up digestion and energy.","Eat iron foods with lemon or amla; keep tea away for an hour.",[
+  "🐍|Bhujangasana (Cobra)|Easy|20s ×3|Lie on belly;Lift chest, elbows soft;Breathe slowly|Skip after recent abdominal surgery",
+  "🦶|Viparita Karani (Legs up wall)|Easy|3–5 min|Sit by wall, swing legs up;Arms relaxed;Breathe deeply|Skip if you have glaucoma",
+  "🌀|Supta Matsyendrasana (Reclined twist)|Easy|30s each side|Lie down, hug knee;Drop knee across;Look opposite way|Go gently with back pain",
+  "☀️|Surya Namaskar (Sun salutation)|Medium|3–5 rounds|Move with breath;Step slowly;Rest between rounds|Stop if dizzy"]],
+ protein:["💪 Protein","protein","Gentle strength builders to pair with protein-rich meals.","Rest well; muscle repairs between sessions.",[
+  "🐕|Adho Mukha Svanasana (Down dog)|Medium|30s ×3|Hands and knees;Lift hips up and back;Press floor away|Bend knees if hamstrings are tight",
+  "🪑|Utkatasana (Chair)|Medium|20s ×3|Feet together;Sit back as if on a chair;Arms overhead|Keep knees behind toes",
+  "⚔️|Virabhadrasana II (Warrior)|Medium|25s each side|Step wide;Bend front knee;Arms long|Shorten stance if shaky",
+  "🪵|Phalakasana (Plank)|Hard|20s ×3|Shoulders over wrists;Body in one line;Breathe steadily|Drop knees to ease"]],
+ b12:["🧠 Vitamin B12","b12","Nerve-calming poses and breath for focus and fatigue.","Yoga helps circulation; B12 itself must come from food or supplements as advised.",[
+  "🔄|Ardha Matsyendrasana (Half twist)|Medium|30s each side|Sit tall;Cross one leg over;Twist from the belly|Skip in late pregnancy",
+  "🌬️|Nadi Shodhana (Alternate nostril)|Easy|5 min|Sit comfortably;Close right nostril, inhale left;Switch each breath|Stop if light-headed",
+  "🧎|Balasana (Child's)|Easy|1–2 min|Kneel;Fold forward;Rest forehead|Use a pillow under hips",
+  "🧘|Sukhasana meditation|Easy|5 min|Sit tall;Eyes closed;Count breaths to ten|None"]],
+ vitamind:["☀️ Vitamin D","vitd","Practise outdoors in gentle morning light.","Sun on bare arms and face is the main natural source.",[
+  "🌅|Surya Namaskar outdoors|Medium|5–10 rounds|Face the sun;Flow with breath;Finish in Tadasana|Avoid harsh midday sun",
+  "🌞|Tadasana in sunlight|Easy|5 min|Stand tall in the open;Arms relaxed;Breathe slowly|Use shade if skin burns",
+  "🤸|Outdoor stretch flow|Easy|10 min|Neck rolls;Side bends;Forward fold|Warm up first"]],
+ stress:["🧘 Stress","stress","Slow poses and breath that calm the nervous system.","Ten minutes a day beats an hour once a week.",[
+  "🌸|Balasana (Child's)|Easy|1–2 min|Kneel;Fold forward;Slow exhale|None",
+  "🛌|Shavasana (Corpse)|Easy|5–10 min|Lie flat;Soften every muscle;Let breath be natural|Cover up to stay warm",
+  "🌿|Paschimottanasana (Forward bend)|Medium|30–60s|Legs straight;Fold from the hips;Do not force|Bend knees if tight",
+  "🐝|Bhramari (Bee breath)|Easy|5 rounds|Close ears gently;Inhale;Hum on the exhale|Skip with ear infection"]],
+ sleep:["🌙 Better sleep","stress","An evening wind-down sequence.","Dim lights and keep phones away for 30 minutes first.",[
+  "🦋|Baddha Konasana (Butterfly)|Easy|2 min|Soles together;Sit tall;Fold forward softly|Place cushions under knees",
+  "🧱|Viparita Karani (Legs up wall)|Easy|5 min|Lie with legs up;Arms open;Slow breaths|Skip if you have glaucoma",
+  "🌬️|4-7-8 breathing|Easy|4 rounds|Inhale 4;Hold 7;Exhale 8|Stop if dizzy"]],
+ digestion:["🍛 Digestion","digest","Poses that gently move the gut after meals.","Wait two hours after a full meal. Vajrasana is the exception.",[
+  "🧎|Vajrasana (Thunderbolt)|Easy|5 min after meals|Kneel and sit on heels;Back straight;Breathe slowly|Skip with knee pain",
+  "💨|Pawanmuktasana (Wind-relieving)|Easy|30s ×3|Lie down;Hug knees;Rock gently|Avoid in late pregnancy",
+  "🔄|Ardha Matsyendrasana|Medium|30s each side|Sit tall;Twist gently;Breathe|Skip after surgery"]],
+ immunity:["🛡️ Immunity","immunity","Open the chest and lungs; build a steady routine.","Sleep, sunlight and vitamin C foods matter just as much.",[
+  "🐠|Matsyasana (Fish)|Medium|20s|Lie on back;Lift chest;Rest crown lightly|Skip with neck issues",
+  "🌬️|Kapalabhati (Skull shine)|Medium|3 rounds of 20|Sit tall;Short sharp exhales;Pause and breathe|Avoid in pregnancy or high BP",
+  "🌅|Surya Namaskar|Medium|5 rounds|Flow with breath;Keep pace even;Finish in Tadasana|Stop if unwell"]],
+ energy:["⚡ Energy","energy","Quick wake-ups for tired mornings.","Water first, then movement.",[
+  "🌅|Surya Namaskar|Medium|3 rounds|Reach up;Fold;Step back and flow|Slow down if dizzy",
+  "🐈|Marjaryasana-Bitilasana (Cat-cow)|Easy|1 min|Hands and knees;Arch;Round|None",
+  "🌬️|Bhastrika (Bellows)|Medium|3 rounds|Deep fast breaths;10 each;Rest|Avoid with high BP"]],
+ hairskin:["✨ Hair & skin","hair","Poses that bring blood flow to head and face.","Iron, zinc and vitamin C foods do the heavy lifting.",[
+  "🙇|Uttanasana (Forward fold)|Easy|30s|Fold from hips;Let head hang;Slow breath|Bend knees",
+  "🐶|Adho Mukha Svanasana|Medium|30s ×3|Hips up and back;Head relaxed;Press floor|Skip with high BP",
+  "🦁|Simhasana (Lion face)|Easy|5 rounds|Inhale;Stick tongue out, exhale;Relax face|None"]],
+ backpain:["🔙 Back & bones","bones","Supportive stretches for stiff backs.","Move slowly; pain is a stop sign.",[
+  "🐈|Cat-cow|Easy|1 min|Hands and knees;Arch;Round|None",
+  "🐍|Bhujangasana (Cobra)|Easy|20s ×3|Lie on belly;Lift chest;Breathe|Keep low if sore",
+  "🧎|Balasana (Child's)|Easy|1–2 min|Kneel;Fold;Breathe|Cushion hips"]]
+};
+const VID={calcium:'raUEsDttCL4',energy:'Rd3OlzvRXf4'};
+const VQ={calcium:'yoga for strong bones',iron:'yoga for anemia low iron circulation',protein:'yoga for strength beginners',b12:'yoga for nerves fatigue pranayama',vitamind:'surya namaskar morning sun yoga',stress:'yoga for stress and anxiety',sleep:'bedtime yoga for sleep',digestion:'yoga for digestion',immunity:'yoga for immunity pranayama',energy:'morning yoga for energy',hairskin:'yoga for hair growth and glowing skin',backpain:'yoga for back pain relief'};
+const yt=q=>'https://www.youtube.com/results?search_query='+encodeURIComponent(q);
+const $=s=>document.querySelector(s);
+const K='nv_yoga_log', log=()=>JSON.parse(localStorage.getItem(K)||'{}'), today=()=>new Date().toISOString().slice(0,10);
+let cur='calcium';
+function foodsFor(tag){return (window.NV?.foods||[]).filter(f=>f.tags.includes(tag)).slice(0,8)}
+function render(){
+  const [label,tag,desc,note,poses]=Y[cur], lv=$('#lvl').value, q=$('#q').value.toLowerCase(), done=log()[today()]||[];
+  const list=poses.map(x=>x.split('|')).filter(p=>(!lv||p[2]===lv)&&(!q||p[1].toLowerCase().includes(q)));
+  const vid=VID[cur]?`<div class="yv"><iframe src="https://www.youtube.com/embed/${VID[cur]}" title="Yoga video" loading="lazy" allowfullscreen></iframe></div>`:'';
+  const more=`<div class="yv yv-search"><div style="flex:1"><strong>Yoga videos for this need</strong><div style="opacity:.9;font-size:.88rem">Follow a guided class on YouTube.</div></div><a href="${yt(VQ[cur])}" target="_blank" rel="noopener">Watch on YouTube</a></div>`;
+  $('#yogaResult').innerHTML=`<div class="plan-card">${vid}${more}<h3 style="font-family:var(--font-display)">${label} — ${desc}</h3>`+
+   (list.map(p=>`<div class="pose-card"><div class="ic">${p[0]}</div><div><h5>${p[1]}</h5>
+    <div class="meta"><span class="pill lvl-${p[2]}">${p[2]}</span><span class="pill">${p[3]}</span></div>
+    <ol>${p[4].split(';').map(s=>`<li>${s}</li>`).join('')}</ol><div class="caution">⚠ ${p[5]}</div>
+    <button class="pose-timer" data-t="${p[3]}" type="button">▶ Start timer</button>
+    <a class="pose-watch" target="_blank" rel="noopener" href="${yt(p[1].split('(')[0]+' yoga tutorial')}">▶ Watch on YouTube</a> <button class="pose-timer pose-done" data-n="${p[1]}" type="button">${done.includes(p[1])?'✓ Done':'Mark done'}</button> <span class="tm"></span></div></div>`).join('')||'<p>No poses match this filter.</p>')+
+   `<div class="lifestyle-tip">${note}</div><div class="lifestyle-tip" style="margin-top:8px"><strong>Eat with this practice:</strong> ${foodsFor(tag).map(f=>f.emoji+' '+f.name).join(' · ')}</div></div>`;
+  stats();
+}
+function stats(){const L=log(),d=L[today()]||[];$('#doneToday').textContent=d.length;
+  let s=0,t=new Date();while((L[t.toISOString().slice(0,10)]||[]).length){s++;t.setDate(t.getDate()-1)}$('#streakNum').textContent=s;
+  const w=[];for(let i=6;i>=0;i--){const x=new Date();x.setDate(x.getDate()-i);const k=x.toISOString().slice(0,10);w.push(`<span title="${k}" style="width:26px;height:26px;border-radius:50%;background:${(L[k]||[]).length?'var(--green-700)':'#fff'};border:2px solid var(--green-300)"></span>`)}$('#weekDots').innerHTML=w.join('')}
+$('#yogaTabs').innerHTML=Object.entries(Y).map(([k,v])=>`<button class="tab ${k===cur?'active':''}" data-k="${k}" type="button">${v[0]}</button>`).join('');
+$('#yogaTabs').onclick=e=>{const k=e.target.dataset.k;if(!k)return;cur=k;document.querySelectorAll('#yogaTabs .tab').forEach(b=>b.classList.toggle('active',b.dataset.k===k));render()};
+$('#lvl').onchange=$('#q').oninput=render;
+$('#yogaResult').onclick=e=>{const b=e.target;
+ if(b.dataset.n){const L=log(),k=today();L[k]=L[k]||[];const i=L[k].indexOf(b.dataset.n);i<0?L[k].push(b.dataset.n):L[k].splice(i,1);localStorage.setItem(K,JSON.stringify(L));render()}
+ if(b.dataset.t){let n=(b.dataset.t.match(/(\d+)\s*(s|min)/)||[30,30,'s']);let sec=+n[1]*(n[2]==='min'?60:1);const out=b.parentNode.querySelector('.tm');clearInterval(window._t);
+  window._t=setInterval(()=>{out.textContent=' ⏱ '+sec+'s';if(--sec<0){clearInterval(window._t);out.textContent=' ✓ Well done'}},1000)}};
+// pacer
+let pacing=null;$('#pacerBtn').onclick=e=>{const orb=$('#orb');if(pacing){clearTimeout(pacing);pacing=null;orb.className='yg-orb';orb.textContent='Ready';e.target.textContent='Start breathing';return}
+ e.target.textContent='Stop';const [i,h,o]=$('#pacerMode').value.split(',').map(Number);
+ (function cyc(){orb.className='yg-orb in';orb.style.transitionDuration=i+'s';orb.textContent='Inhale';
+  pacing=setTimeout(()=>{orb.textContent='Hold';pacing=setTimeout(()=>{orb.className='yg-orb out';orb.style.transitionDuration=o+'s';orb.textContent='Exhale';pacing=setTimeout(cyc,o*1000)},h*1000)},i*1000)})()};
+const qc=new URLSearchParams(location.search).get('cond');if(qc&&Y[qc]){cur=qc;document.querySelectorAll('#yogaTabs .tab').forEach(b=>b.classList.toggle('active',b.dataset.k===qc))}
+window.addEventListener('load',render);render();
+</script>
+{% endblock %}

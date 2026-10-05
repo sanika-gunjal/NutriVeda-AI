@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% set active = "one-food" %}
+{% block title %}One Food — Many Solutions — NutriVeda AI{% endblock %}
+{% block body %}
+<section class="intel-hero one-food-hero">
+  <div class="section-wrap">
+    <div class="eyebrow" data-i18n="onefood.eyebrow">Food Encyclopedia</div>
+    <h1 data-i18n="onefood.title">One Food — Many Solutions</h1>
+    <p data-i18n="onefood.subtitle">Explore one food from every angle: what it is, how to use it, recipes, nutrients, wellness roles and interesting facts.</p>
+    <input class="wide-search" id="foodSearch" data-i18n-placeholder="onefood.search" placeholder="Search foods like amla, ragi, spinach…">
+  </div>
+</section>
+<section class="section-wrap">
+  <div class="one-food-grid" id="foodGrid"></div>
+</section>
+<div class="food-detail-overlay" id="foodOverlay"><div class="food-detail-panel" id="foodPanel"></div></div>
+{% endblock %}
+{% block scripts %}
+<script>
+const foods={{ foods_json|safe }}, grid=document.getElementById('foodGrid'), search=document.getElementById('foodSearch');
+function renderFoods(){
+ const q=search.value.toLowerCase().trim();
+ grid.innerHTML=foods.filter(f=>!q||JSON.stringify(f).toLowerCase().includes(q)).map((f,i)=>`
+ <article class="one-food-card" data-index="${i}">
+   <div class="food-cover"><span>🌿</span><span class="food-cover-label">ONE FOOD</span></div>
+   <div class="food-card-content"><h3>${f.name}</h3><p>${f.intro}</p>
+   <div class="nutrient-tags">${f.nutrients.map(n=>`<span>${n}</span>`).join('')}</div>
+   <button class="btn-primary food-open" data-index="${i}">Explore this food →</button></div>
+ </article>`).join('');
+ document.querySelectorAll('.food-open').forEach(b=>b.onclick=()=>openFood(+b.dataset.index));
+}
+function openFood(i){
+ const f=foods[i];
+ document.getElementById('foodPanel').innerHTML=`
+ <button class="detail-close" onclick="closeFood()">✕</button><span class="food-intel-kicker">FOOD PROFILE</span><h2>${f.name}</h2><p class="lead">${f.intro}</p>
+ <div class="detail-columns">
+ <div><h4>🍽️ Uses</h4><ul>${f.uses.map(x=>`<li>${x}</li>`).join('')}</ul><h4>👩‍🍳 Recipes</h4><ul>${f.recipes.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+ <div><h4>🧬 Nutrient profile</h4><div class="nutrient-tags">${f.nutrients.map(x=>`<span>${x}</span>`).join('')}</div><h4>💚 Wellness roles</h4><ul>${f.wellness.map(x=>`<li>${x}</li>`).join('')}</ul></div></div>
+ <div class="facts-strip"><h4>🔎 Quick facts</h4>${f.facts.map(x=>`<p>• ${x}</p>`).join('')}</div>
+ <div class="detail-video"><a href="${f.video}" target="_blank" rel="noopener">▶ Watch recipes & food education on YouTube</a> <a href="${f.source}" target="_blank" rel="noopener">Official nutrition reference ↗</a></div>
+ <p class="medical-note">Food supports a balanced diet; it does not “heal” or cure disease by itself. Persistent symptoms need professional medical advice.</p>`;
+ document.getElementById('foodOverlay').classList.add('open');
+}
+function closeFood(){document.getElementById('foodOverlay').classList.remove('open')}
+search.addEventListener('input',renderFoods); document.getElementById('foodOverlay').addEventListener('click',e=>{if(e.target.id==='foodOverlay')closeFood()}); renderFoods();
+</script>
+{% endblock %}

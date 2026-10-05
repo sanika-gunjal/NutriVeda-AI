@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+{% import "_icons.html" as icons %}
+{% set active = "home" %}
+{% block title %}NutriVeda AI — Smart Nutrition Analysis{% endblock %}
+
+{% block body %}
+
+<!-- ================= HERO ================= -->
+<section class="hero-new">
+  <div class="ambient-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+  <div class="botanical-texture"></div>
+
+  <div class="hero-content-new">
+    <div>
+      <div class="hero-eyebrow-new"><span class="dot-live"></span> AI-Powered · Free · Indian Diet Focused</div>
+
+      <h1 class="hero-title-new">
+        Decode your body's<br><em>nutrient story.</em>
+      </h1>
+
+      <p class="hero-subtitle-new">
+        NutriVeda AI reads your symptoms and body data to spot nutritional gaps — then builds you an Indian-diet plan, fitness routine, and full vitamin & mineral reference to fix them.
+      </p>
+
+      <div class="hero-cta-row">
+        <a href="/form" class="btn-primary">🔍 Start Free Analysis</a>
+        <a href="/nutrients" class="btn-outline">🧬 Explore Nutrient Guide</a>
+      </div>
+
+      <div class="hero-stats-new">
+        <div class="stat-item">
+          <span class="stat-num count-up" data-target="15">0</span>
+          <span class="stat-label">Vitamins & Minerals</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num count-up" data-target="100">0</span>
+          <span class="stat-label">Food Suggestions</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num count-up" data-target="16">0</span>
+          <span class="stat-label">Health Modules</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Signature visual: a real thali photo being "scanned" by the AI, with
+         floating nutrient chips and a live detection card — grounds the
+         abstract idea of "reading your body" in something tangible -->
+    <div class="hero-scan-wrap" aria-hidden="true">
+      <div class="hero-scan-glow"></div>
+
+      <div class="hero-scan-frame">
+        <img src="https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=80&w=700&auto=format&fit=crop" alt="Indian thali being analysed">
+        <div class="hero-scan-line"></div>
+        <div class="hero-scan-grid"></div>
+      </div>
+
+      <div class="hero-detect-card">
+        <span class="hero-detect-dot"></span>
+        <div>
+          <strong>Iron intake low</strong>
+          <span>Suggesting spinach, jaggery, dates</span>
+        </div>
+      </div>
+
+      <div class="hero-chip" style="top:-4%; left:52%;">{{ icons.bone() }}<span class="label">Calcium</span></div>
+      <div class="hero-chip" style="top:22%; left:92%; animation-delay:-1s;">{{ icons.drop() }}<span class="label">Iron</span></div>
+      <div class="hero-chip" style="top:74%; left:88%; animation-delay:-2s;">{{ icons.sun() }}<span class="label">Vit D</span></div>
+      <div class="hero-chip" style="top:88%; left:20%; animation-delay:-3s;">{{ icons.citrus() }}<span class="label">Vit C</span></div>
+      <div class="hero-chip" style="top:18%; left:-8%; animation-delay:-1.6s;">{{ icons.egg() }}<span class="label">B12</span></div>
+    </div>
+  </div>
+
+  <div class="hero-scroll-cue">Scroll<span class="chevron"></span></div>
+</section>
+
+<!-- ================= STAT BAND (moved up: lead with proof) ================= -->
+<section class="section-wrap tight reveal" style="background:var(--green-50); border-radius:var(--radius-lg); max-width:1100px;">
+  <div class="stat-band">
+    <div class="stat-band-item">
+      <span class="num count-up" data-target="15">0</span>
+      <span class="lbl">Vitamins &amp; Minerals Covered</span>
+    </div>
+    <div class="stat-band-item">
+      <span class="num count-up" data-target="5">0</span>
+      <span class="lbl">Deficiencies Detected</span>
+    </div>
+    <div class="stat-band-item">
+      <span class="num count-up" data-target="100">0</span>
+      <span class="lbl">Indian Food Suggestions</span>
+    </div>
+    <div class="stat-band-item">
+      <span class="num count-up" data-target="16">0</span>
+      <span class="lbl">Health Modules</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FEATURE GRID ================= -->
+<section class="section-wrap reveal">
+  <div class="section-head">
+    <div class="eyebrow">What's Inside</div>
+    <h2>One platform, every part of your health</h2>
+    <p>From decoding symptoms to building meal plans — each tool feeds into the next.</p>
+  </div>
+
+  <div class="feature-grid-new reveal-stagger">
+    <div class="feature-card-new tilt-hover">
+      <div class="feature-photo"><img src="https://images.unsplash.com/photo-1584982751601-97dcc096659c?q=80&w=700&auto=format&fit=crop" alt="Doctor with stethoscope" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
+      <div class="ic" style="background:var(--green-50); color:var(--green-700);">{{ icons.stethoscope() }}</div>
+      <h4>Symptom Checker</h4>
+      <p>Tell us how you feel — we map it to likely deficiencies using a clinically-informed symptom database.</p>
+      <a href="/symptoms" class="card-link">Check symptoms <span class="arrow">→</span></a>
+    </div>
+    <div class="feature-card-new tilt-hover">
+      <div class="feature-photo"><img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=700&auto=format&fit=crop" alt="Nutrient-rich fresh foods" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
+      <div class="ic" style="background:var(--turmeric-lt); color:var(--turmeric-dk);">{{ icons.dna() }}</div>
+      <h4>Nutrient Encyclopedia</h4>
+      <p>Every vitamin and mineral — RDA, deficiency signs, and the best Indian food sources, in one searchable guide.</p>
+      <a href="/nutrients" class="card-link">Browse nutrients <span class="arrow">→</span></a>
+    </div>
+    <div class="feature-card-new tilt-hover">
+      <div class="feature-photo"><img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=700&auto=format&fit=crop" alt="Weighing scale" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
+      <div class="ic" style="background:var(--green-50); color:var(--green-700);">{{ icons.scale() }}</div>
+      <h4>BMI Calculator</h4>
+      <p>Instant BMI with category breakdown and a direct link to the right weight plan for your result.</p>
+      <a href="/bmi" class="card-link">Calculate BMI <span class="arrow">→</span></a>
+    </div>
+    <div class="feature-card-new tilt-hover">
+      <div class="feature-photo"><img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=700&auto=format&fit=crop" alt="Workout and fitness" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
+      <div class="ic" style="background:var(--clay-lt); color:var(--clay);">{{ icons.runner() }}</div>
+      <h4>Weight Loss / Gain Plans</h4>
+      <p>Personalised, calorie-aware Indian diet plans with embedded video guidance for either goal.</p>
+      <a href="/weightloss" class="card-link">View plans <span class="arrow">→</span></a>
+    </div>
+    <div class="feature-card-new tilt-hover">
+      <div class="feature-photo"><img src="https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=700&auto=format&fit=crop" alt="Skincare and haircare routine" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
+      <div class="ic" style="background:var(--green-50); color:var(--green-700);">{{ icons.leaf_sparkle() }}</div>
+      <h4>Hair & Skin Care</h4>
+      <p>Pick your concern — hair fall, acne, pigmentation — and get a food + lifestyle routine for it.</p>
+      <a href="/haircare" class="card-link">Get a routine <span class="arrow">→</span></a>
+    </div>
+    <div class="feature-card-new tilt-hover">
+      <div class="feature-photo"><img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=700&auto=format&fit=crop" alt="Learning with videos" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
+      <div class="ic" style="background:var(--turmeric-lt); color:var(--turmeric-dk);">{{ icons.play() }}</div>
+      <h4>Video & Official Resources</h4>
+      <p>Curated YouTube explainers plus links to WHO, ICMR and NIH for every major nutrient and condition.</p>
+      <a href="/resources" class="card-link">See resources <span class="arrow">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= NEW INTELLIGENCE OVERVIEW ================= -->
+<section class="section-wrap reveal">
+  <div class="section-head">
+    <div class="eyebrow" data-i18n="home.overview.eyebrow">Explore the Intelligence Layer</div>
+    <h2 data-i18n="home.overview.title">Nutrition, Food, Yoga & Ayurveda — connected in one journey</h2>
+    <p data-i18n="home.overview.desc">Move from understanding nutrients to choosing regional food, cooking what is already in your kitchen, building a plan and supporting it with movement and Ayurveda-inspired wellness.</p>
+  </div>
+  <div class="food-intel-grid">
+    <a class="food-intel-card tilt-hover" href="/regional-food"><div class="food-card-icon">🇮🇳</div><div class="food-card-content"><span class="mini-label">FOOD INTELLIGENCE</span><h3>Regional Indian Food</h3><p>Choose your state and discover familiar dishes, nutrients and recipe learning links.</p></div></a>
+    <a class="food-intel-card tilt-hover" href="/kitchen"><div class="food-card-icon">👩‍🍳</div><div class="food-card-content"><span class="mini-label">SMART KITCHEN</span><h3>What's in My Kitchen?</h3><p>Select ingredients and get practical Indian recipes plus nutrition facts.</p></div></a>
+    <a class="food-intel-card tilt-hover" href="/one-food"><div class="food-card-icon">🌿</div><div class="food-card-content"><span class="mini-label">FOOD ENCYCLOPEDIA</span><h3>One Food — Many Solutions</h3><p>Explore uses, recipes, nutrients, wellness roles, facts and trusted sources.</p></div></a>
+    <a class="food-intel-card tilt-hover" href="/nutrients"><div class="food-card-icon">🧬</div><div class="food-card-content"><span class="mini-label">NUTRIENTS</span><h3>Vitamin & Mineral Intelligence</h3><p>Understand RDA, food sources, deficiency signs, absorption and learning resources.</p></div></a>
+    <a class="food-intel-card tilt-hover" href="/yoga"><div class="food-card-icon">🧘</div><div class="food-card-content"><span class="mini-label">MOVEMENT</span><h3>Yoga & Meditation</h3><p>Connect wellness routines with common nutrition concerns and daily stress management.</p></div></a>
+    <a class="food-intel-card tilt-hover" href="/dosha-quiz"><div class="food-card-icon">🕉️</div><div class="food-card-content"><span class="mini-label">AYURVEDA</span><h3>Prakruti & Seasonal Wellness</h3><p>Explore Dosha concepts, seasonal food guidance and traditional wellness practices responsibly.</p></div></a>
+    <a class="food-intel-card tilt-hover" href="/smart-meal-planner"><div class="food-card-icon">✨</div><div class="food-card-content"><span class="mini-label">ADVANCED</span><h3>Smart Indian Meal Planner</h3><p>Combine your goal, diet preference and state to create a practical meal framework.</p></div></a>
+    <a class="food-intel-card tilt-hover" href="/dashboard"><div class="food-card-icon">📊</div><div class="food-card-content"><span class="mini-label">TRACKING</span><h3>Track → Learn → Improve</h3><p>Food Diary, BMI, steps, cycle, allergies and history bring your wellness journey together.</p></div></a>
+  </div>
+</section>
+
+<!-- ================= REAL PHOTO SHOWCASE ================= -->
+<section class="section-wrap reveal">
+  <div class="section-head">
+    <div class="eyebrow">Real Food, Real Results</div>
+    <h2>Built around the Indian thali, not generic diets</h2>
+    <p>Every recommendation comes back to food you already know — cooked the way your kitchen cooks it.</p>
+  </div>
+
+  <div class="photo-showcase reveal-stagger">
+    <div class="photo-card tall tilt-hover">
+      <img src="https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=80&w=800&auto=format&fit=crop" alt="Traditional Indian thali with dal, sabzi, roti and rice" loading="lazy">
+      <span class="photo-tag">Indian Thali</span>
+      <span class="photo-caption">Balanced thalis, mapped to your nutrient gaps</span>
+    </div>
+    <div class="photo-card tilt-hover">
+      <img src="https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=800&auto=format&fit=crop" alt="Fresh seasonal fruits" loading="lazy">
+      <span class="photo-tag">Seasonal</span>
+      <span class="photo-caption">Fresh, seasonal fruit picks</span>
+    </div>
+    <div class="photo-card tilt-hover">
+      <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop" alt="Healthy nutrient-rich salad bowl" loading="lazy">
+      <span class="photo-tag">Nutrient-Dense</span>
+      <span class="photo-caption">Everyday bowls, dialled to your needs</span>
+    </div>
+    <div class="photo-card tilt-hover">
+      <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800&auto=format&fit=crop" alt="Yoga and wellness routine" loading="lazy">
+      <span class="photo-tag">Movement</span>
+      <span class="photo-caption">Yoga & workouts that match your plan</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section class="section-wrap reveal">
+  <div class="section-head">
+    <div class="eyebrow">How It Works</div>
+    <h2>Three steps to a personalised plan</h2>
+  </div>
+  <div class="how-steps reveal-stagger">
+    <div class="how-step">
+      <div class="step-num">1</div>
+      <h4>Tell us how you feel</h4>
+      <p>Pick your symptoms or fill in your height, weight and age in under a minute.</p>
+    </div>
+    <div class="how-step">
+      <div class="step-num">2</div>
+      <h4>Get matched to deficiencies</h4>
+      <p>We cross-reference your inputs against our nutrient and deficiency database.</p>
+    </div>
+    <div class="how-step">
+      <div class="step-num">3</div>
+      <h4>Act on a real plan</h4>
+      <p>Indian foods, yoga, workouts, and videos — tailored to exactly what you need.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TESTIMONIALS ================= -->
+<section class="section-wrap reveal">
+  <div class="section-head">
+    <div class="eyebrow">Loved By Users</div>
+    <h2>What people are saying</h2>
+  </div>
+  <div class="testimonial-row reveal-stagger">
+    <div class="testimonial-card">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="quote">"Found out I was low on iron within two minutes of answering the symptom quiz. The food suggestions actually fit what my mom cooks at home."</p>
+      <div class="testimonial-person">
+        <img src="https://i.pravatar.cc/100?img=47" alt="Priya S." loading="lazy">
+        <div><div class="name">Priya S.</div><div class="role">Pune</div></div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="quote">"The weight-gain plan with videos made it so much easier to follow. No English-only fancy foods — just dal, ghee, and rice done right."</p>
+      <div class="testimonial-person">
+        <img src="https://i.pravatar.cc/100?img=12" alt="Rohit K." loading="lazy">
+        <div><div class="name">Rohit K.</div><div class="role">Nagpur</div></div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="quote">"I use the food diary daily now. Seeing my nutrient trends on the dashboard keeps me honest about what I'm actually eating."</p>
+      <div class="testimonial-person">
+        <img src="https://i.pravatar.cc/100?img=32" alt="Ananya D." loading="lazy">
+        <div><div class="name">Ananya D.</div><div class="role">Jalgaon</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FEATURE PILLS ================= -->
+<section class="section-wrap tight reveal">
+  <div class="feature-pill-row" style="justify-content:center;">
+    <span class="feature-pill">🩺 Symptom Checker</span>
+    <span class="feature-pill">📊 BMI Calculator</span>
+    <span class="feature-pill">🧬 Nutrient Encyclopedia</span>
+    <span class="feature-pill">💇 Hair & Skin Care</span>
+    <span class="feature-pill">🏃 Weight Plans</span>
+    <span class="feature-pill">🍉 Seasonal Food Guide</span>
+    <span class="feature-pill">🌱 Protein Calculator</span>
+    <span class="feature-pill">🧘 Yoga Therapy</span>
+    <span class="feature-pill">🚶 Step Tracker</span>
+    <span class="feature-pill">🍵 Immunity Recipes</span>
+    <span class="feature-pill">📺 Video Resources</span>
+  </div>
+</section>
+
+<!-- ================= CTA BAND ================= -->
+<section class="section-wrap reveal">
+  <div class="cta-band">
+    <div class="ambient-blobs"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
+    <div style="position:relative;z-index:2;">
+      <h2>Ready to find out what your body's missing?</h2>
+      <p>Free, fast, and built around Indian diets — no signup required.</p>
+      <a href="/form" class="btn-primary" style="background:#fff;color:var(--green-800);box-shadow:0 8px 24px rgba(0,0,0,0.2);">🔍 Start Your Analysis</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

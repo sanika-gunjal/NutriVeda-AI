@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% set active = "dosha-quiz" %}
+{% block title %}Prakruti (Dosha) Quiz — NutriVeda AI{% endblock %}
+
+{% block body %}
+<div class="content-plain" style="background:var(--green-50);">
+<div style="max-width:820px;margin:0 auto;">
+
+  <div class="food-hero reveal in-view">
+    <div class="eyebrow" style="color:rgba(255,255,255,0.85);">🕉️ Ayurveda</div>
+    <h1>Prakruti (Dosha) Quiz</h1>
+    <p>Answer 12 quick questions about your body and habits to find your Ayurvedic constitution — Vata, Pitta or Kapha — and get food guidance built for it.</p>
+  </div>
+
+  <div class="card reveal in-view" style="margin-bottom:24px;">
+    <p style="color:var(--text-soft);font-size:0.85rem;margin-bottom:18px;">
+      Pick whichever option has described you <strong>most of your life</strong> (not just today) for each question. This is a wellness self-check, not a medical diagnosis.
+    </p>
+
+    <div id="doshaQuestions"></div>
+
+    <button class="btn btn-block" id="doshaSubmitBtn" type="button" style="margin-top:8px;">🔍 Find My Prakruti</button>
+    <p id="doshaIncomplete" class="alert alert-warn" style="display:none;margin-top:12px;">Please answer every question first — <span id="doshaMissingCount"></span> left.</p>
+  </div>
+
+  <div id="doshaResult" style="display:none;"></div>
+
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+  .dosha-q { margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px dashed var(--border, #e5e0d8); }
+  .dosha-q:last-child { border-bottom: none; margin-bottom: 0; }
+  .dosha-q-title { font-weight: 700; color: var(--text-mid); font-size: 0.92rem; margin-bottom: 10px; }
+  .dosha-opts { display: flex; flex-direction: column; gap: 8px; }
+  .dosha-opt {
+    text-align: left; padding: 10px 14px; border-radius: 12px; border: 1.5px solid #e5e0d8;
+    background: #fff; cursor: pointer; font-size: 0.85rem; color: var(--text-soft); transition: all 0.15s ease;
+  }
+  .dosha-opt:hover { border-color: var(--green-400, #86c98c); }
+  .dosha-opt.selected { border-color: var(--green-700); background: var(--green-100); color: var(--green-900); font-weight: 600; }
+  .dosha-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .dosha-bar-label { width: 80px; font-weight: 700; font-size: 0.85rem; }
+  .dosha-bar-track { flex: 1; height: 14px; border-radius: 8px; background: #eee; overflow: hidden; }
+  .dosha-bar-fill { height: 100%; border-radius: 8px; transition: width 0.6s ease; }
+  .dosha-bar-pct { width: 46px; text-align: right; font-size: 0.8rem; color: var(--text-mute); }
+</style>
+<script>
+const doshaQuestions = [
+  { q: "Body frame", opts: [
+    ["Thin, light, find it hard to gain weight", "vata"],
+    ["Medium build, gains/loses weight moderately easily", "pitta"],
+    ["Solid, sturdy, gains weight easily and loses it slowly", "kapha"]]},
+  { q: "Skin type", opts: [
+    ["Dry, thin, cool to touch", "vata"],
+    ["Warm, soft, prone to redness/acne/moles", "pitta"],
+    ["Thick, oily, smooth, cool", "kapha"]]},
+  { q: "Hair", opts: [
+    ["Dry, thin, frizzy", "vata"],
+    ["Fine, early greying/thinning, oily scalp", "pitta"],
+    ["Thick, oily, wavy, lustrous", "kapha"]]},
+  { q: "Appetite", opts: [
+    ["Irregular — sometimes forget to eat", "vata"],
+    ["Strong and sharp — get irritable if a meal is skipped", "pitta"],
+    ["Steady but low — can easily skip a meal", "kapha"]]},
+  { q: "Digestion", opts: [
+    ["Variable, gas/bloating are common", "vata"],
+    ["Fast, sometimes acidity or heartburn", "pitta"],
+    ["Slow, feels heavy after eating", "kapha"]]},
+  { q: "Sleep", opts: [
+    ["Light sleeper, mind wanders, interrupted sleep", "vata"],
+    ["Moderate, sound sleep but wakes up alert", "pitta"],
+    ["Deep, long sleeper, hard to wake up", "kapha"]]},
+  { q: "Weather preference", opts: [
+    ["Dislikes cold & windy weather", "vata"],
+    ["Dislikes heat & sun", "pitta"],
+    ["Dislikes cold & damp/humid weather", "kapha"]]},
+  { q: "Temperament under stress", opts: [
+    ["Anxious, worried, overthinks", "vata"],
+    ["Irritable, short-tempered, competitive", "pitta"],
+    ["Calm, withdraws, avoids confrontation", "kapha"]]},
+  { q: "Speech & movement", opts: [
+    ["Talks fast, moves quickly, restless", "vata"],
+    ["Talks with precision and confidence", "pitta"],
+    ["Talks slowly, calm and steady movements", "kapha"]]},
+  { q: "Memory", opts: [
+    ["Grasps quickly but forgets quickly", "vata"],
+    ["Sharp, clear memory", "pitta"],
+    ["Slow to learn but never forgets once learnt", "kapha"]]},
+  { q: "Decision-making", opts: [
+    ["Changes mind often, indecisive", "vata"],
+    ["Decisive, sometimes impulsive", "pitta"],
+    ["Slow, deliberate, sticks to decisions", "kapha"]]},
+  { q: "Reaction to exercise", opts: [
+    ["Tires quickly, low stamina", "vata"],
+    ["Good stamina, likes competitive activity", "pitta"],
+    ["High endurance but slow to start", "kapha"]]}
+];
+
+const answers = {};
+
+function renderQuestions() {
+  const wrap = document.getElementById('doshaQuestions');
+  wrap.innerHTML = doshaQuestions.map((item, qi) => `
+    <div class="dosha-q">
+      <div class="dosha-q-title">${qi + 1}. ${item.q}</div>
+      <div class="dosha-opts" data-qindex="${qi}">
+        ${item.opts.map(([text, dosha], oi) => `
+          <button type="button" class="dosha-opt" data-qi="${qi}" data-oi="${oi}" data-dosha="${dosha}">${text}</button>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  wrap.querySelectorAll('.dosha-opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const qi = btn.dataset.qi;
+      answers[qi] = btn.dataset.dosha;
+      wrap.querySelectorAll(`.dosha-opts[data-qindex="${qi}"] .dosha-opt`).forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    });
+  });
+}
+renderQuestions();
+
+const doshaInfo = {
+  vata: {
+    name: "Vata (Air + Space)", color: "#7c3aed", emoji: "🍃",
+    trait: "Governs movement, creativity and the nervous system. In imbalance: dryness, anxiety, irregular digestion.",
+    favor: ["Warm, cooked, moist food", "Ghee & healthy oils", "Sweet, sour, salty tastes", "Root vegetables", "Warm milk with turmeric/nutmeg", "Regular meal timings"],
+    avoid: ["Cold/raw/dry food", "Excess caffeine", "Carbonated drinks", "Skipping meals", "Bitter, pungent, astringent in excess"],
+    tips: ["🕰️ Keep a regular daily routine — Vata thrives on rhythm.", "🧘 Gentle yoga, oil massage (abhyanga) and grounding practices help calm Vata.", "🧣 Stay warm; avoid excessive cold and wind exposure."]
+  },
+  pitta: {
+    name: "Pitta (Fire + Water)", color: "#c2500a", emoji: "🔥",
+    trait: "Governs digestion, metabolism and transformation. In imbalance: acidity, inflammation, irritability.",
+    favor: ["Cool/room-temp food, not too spicy", "Sweet, bitter, astringent tastes", "Coconut water, cucumber, melons", "Ghee in moderation", "Leafy greens"],
+    avoid: ["Excess spicy/fried/sour food", "Alcohol, caffeine", "Skipping meals when very hungry", "Prolonged sun exposure at meal-skip times"],
+    tips: ["😌 Avoid overworking through mealtimes — Pitta gets irritable when very hungry.", "🌙 Cooling pranayama and moonlight walks help balance excess heat.", "🥒 Favour cooling foods, especially in summer."]
+  },
+  kapha: {
+    name: "Kapha (Earth + Water)", color: "#0f7a56", emoji: "🌱",
+    trait: "Governs structure, stability and lubrication. In imbalance: sluggishness, weight gain, congestion.",
+    favor: ["Warm, light, spiced food", "Pungent, bitter, astringent tastes", "Honey (not heated) in moderation", "Legumes, leafy greens", "Ginger & black pepper tea"],
+    avoid: ["Heavy, oily, cold, sweet food", "Excess dairy", "Daytime napping", "Overeating, large late dinners"],
+    tips: ["🏃 Daily vigorous exercise is especially important for Kapha types.", "🌞 Wake early and avoid oversleeping — Kapha needs stimulation to stay balanced.", "🌶️ Favour warming spices (ginger, black pepper, mustard) in cooking."]
+  }
+};
+
+document.getElementById('doshaSubmitBtn').addEventListener('click', () => {
+  const missing = doshaQuestions.length - Object.keys(answers).length;
+  const incompleteMsg = document.getElementById('doshaIncomplete');
+  if (missing > 0) {
+    document.getElementById('doshaMissingCount').textContent = missing;
+    incompleteMsg.style.display = 'block';
+    return;
+  }
+  incompleteMsg.style.display = 'none';
+
+  const counts = { vata: 0, pitta: 0, kapha: 0 };
+  Object.values(answers).forEach(d => counts[d]++);
+  const total = doshaQuestions.length;
+  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  const [topDosha, topCount] = sorted[0];
+  const [secondDosha, secondCount] = sorted[1];
+  const isDual = (topCount - secondCount) <= 1 && secondCount > 0;
+
+  const resultWrap = document.getElementById('doshaResult');
+  const primary = doshaInfo[topDosha];
+  const secondary = isDual ? doshaInfo[secondDosha] : null;
+
+  const barsHtml = Object.entries(counts).map(([d, c]) => {
+    const info = doshaInfo[d];
+    const pct = Math.round((c / total) * 100);
+    return `<div class="dosha-bar-row">
+      <div class="dosha-bar-label" style="color:${info.color}">${info.emoji} ${d[0].toUpperCase()+d.slice(1)}</div>
+      <div class="dosha-bar-track"><div class="dosha-bar-fill" style="width:${pct}%;background:${info.color}"></div></div>
+      <div class="dosha-bar-pct">${pct}%</div>
+    </div>`;
+  }).join('');
+
+  function doshaSection(info) {
+    return `
+      <div class="plan-card" style="border-left:4px solid ${info.color};margin-bottom:16px;">
+        <h3 style="color:${info.color};font-weight:800;margin-bottom:6px;">${info.emoji} ${info.name}</h3>
+        <p style="color:var(--text-soft);font-size:0.85rem;margin-bottom:14px;">${info.trait}</p>
+        <p style="font-size:0.82rem;font-weight:700;color:var(--text-mid);margin-bottom:8px;">✅ Foods & habits to favour</p>
+        <div class="plan-foods">${info.favor.map(f => `<span class="food-chip">🌿 ${f}</span>`).join('')}</div>
+        <p style="font-size:0.82rem;font-weight:700;color:var(--text-mid);margin:16px 0 8px;">🚫 Limit these</p>
+        <div class="plan-foods">${info.avoid.map(f => `<span class="tag" style="background:#fef3c7;color:#92400e;border-color:#fde68a;">${f}</span>`).join('')}</div>
+        <p style="font-size:0.82rem;font-weight:700;color:var(--text-mid);margin:16px 0 4px;">Lifestyle Tips</p>
+        ${info.tips.map(t => `<div class="plan-tip"><span class="plan-tip-icon">💡</span><div>${t}</div></div>`).join('')}
+      </div>`;
+  }
+
+  resultWrap.innerHTML = `
+    <div class="card reveal in-view" style="margin-bottom:16px;">
+      <div class="eyebrow">Your Result</div>
+      <h2 style="font-size:1.3rem;font-weight:800;color:var(--green-900);margin-bottom:14px;">
+        ${isDual ? `Dual Prakruti: ${primary.name.split(' (')[0]}–${secondary.name.split(' (')[0]}` : `Your Prakruti is ${primary.name}`}
+      </h2>
+      ${barsHtml}
+    </div>
+    ${doshaSection(primary)}
+    ${secondary ? doshaSection(secondary) : ''}
+    <div class="alert alert-info">💡 Most people are a mix of two doshas. This quiz gives a general indication — for a precise assessment, consult a qualified Ayurvedic practitioner.</div>
+  `;
+  resultWrap.style.display = 'block';
+  resultWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+</script>
+{% endblock %}

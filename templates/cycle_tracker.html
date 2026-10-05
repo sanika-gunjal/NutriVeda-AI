@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% set active = "cycle-tracker" %}
+{% block title %}Menstrual Cycle Tracker — NutriVeda AI{% endblock %}
+
+{% block body %}
+<div class="content-plain" style="background:var(--green-50);">
+<div style="max-width:900px;margin:0 auto;">
+
+  <div class="food-hero reveal in-view">
+    <div class="eyebrow" style="color:rgba(255,255,255,0.85);">🌸 Cycle-Based Nutrition</div>
+    <h1>Menstrual Cycle Tracker</h1>
+    <p>Log your cycle to get phase-based nutrition suggestions — iron needs, cravings, and energy all shift across the month.</p>
+  </div>
+
+  {% if cycle_info %}
+  <div class="card reveal in-view" style="margin-bottom:24px;" id="phaseCard"></div>
+  {% endif %}
+
+  <div class="card reveal in-view" style="margin-bottom:24px;">
+    <h3 style="color:var(--green-900);font-weight:700;margin-bottom:16px;">➕ Log a period start</h3>
+    <form method="post">
+      <div class="meal-form-grid">
+        <div class="form-group">
+          <label>Period start date</label>
+          <input type="date" name="period_start" required>
+        </div>
+        <div class="form-group">
+          <label>Usual cycle length (days)</label>
+          <input type="number" name="cycle_length" value="28" min="15" max="45">
+        </div>
+        <div class="form-group">
+          <label>Period length (days)</label>
+          <input type="number" name="period_length" value="5" min="1" max="15">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Symptoms this cycle (optional)</label>
+        <div class="plan-foods">
+          {% for s in ["Cramps","Fatigue","Cravings","Mood swings","Headache","Bloating","Low energy"] %}
+          <label class="food-chip" style="cursor:pointer;">
+            <input type="checkbox" name="symptoms" value="{{ s }}" style="margin-right:4px;">{{ s }}
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+      <button class="btn btn-block" type="submit">Save Entry</button>
+    </form>
+  </div>
+
+  {% if logs %}
+  <div class="card card-wide reveal in-view">
+    <div class="eyebrow">History</div>
+    <h3 style="font-size:1.05rem;font-weight:700;color:var(--green-900);margin-bottom:10px;">Logged Cycles ({{ logs|length }})</h3>
+    <div style="overflow-x:auto;">
+      <table class="history-table">
+        <thead><tr><th>Period Start</th><th>Cycle Length</th><th>Period Length</th><th>Symptoms</th><th></th></tr></thead>
+        <tbody>
+          {% for l in logs %}
+          <tr>
+            <td>{{ l.period_start }}</td>
+            <td>{{ l.cycle_length }} days</td>
+            <td>{{ l.period_length }} days</td>
+            <td>{{ l.symptoms if l.symptoms else '—' }}</td>
+            <td>
+              <form method="post" action="/cycle-tracker/delete/{{ l.id }}" style="display:inline;">
+                <button type="submit" class="meal-del-btn" title="Delete" onclick="return confirm('Remove this entry?');">🗑️</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const phaseInfo = {
+  menstrual: {
+    label: "Menstrual Phase", emoji: "🩸", color: "#c2410c",
+    desc: "Iron and blood are being lost — this is when nutrition support matters most.",
+    focus: ["Iron-rich foods: leafy greens, jaggery, dates, pomegranate, beetroot", "Warm, easily digestible food (khichdi, soups) if cramping", "Vitamin C alongside iron-rich meals (lemon, amla) to boost absorption", "Stay hydrated; herbal teas (ginger, cinnamon) can ease cramps"]
+  },
+  follicular: {
+    label: "Follicular Phase", emoji: "🌱", color: "#0f7a56",
+    desc: "Energy typically rises as estrogen builds — a good window for more active eating and exercise.",
+    focus: ["Protein + complex carbs for rising energy: eggs, dal, whole grains", "Sprouts and fermented foods (curd) support gut health", "Good window to focus on strength-based workouts alongside nutrition"]
+  },
+  ovulation: {
+    label: "Ovulation Phase", emoji: "🌕", color: "#c9a24a",
+    desc: "Energy and metabolism often peak around ovulation.",
+    focus: ["Anti-inflammatory foods: turmeric, walnuts, flaxseed", "Fibre-rich vegetables to support estrogen metabolism", "Stay well hydrated; this phase can slightly raise body temperature"]
+  },
+  luteal: {
+    label: "Luteal Phase (PMS window)", emoji: "🌙", color: "#7c3aed",
+    desc: "Progesterone rises and PMS symptoms (cravings, mood dips, bloating) are common.",
+    focus: ["Magnesium-rich foods (nuts, seeds, dark leafy greens) may ease cravings/mood dips", "Complex carbs (whole grains) instead of refined sugar for steadier energy", "Reduce excess salt/caffeine if bloating or irritability are noticeable", "Calcium-rich foods (milk, curd, sesame) are linked to lower PMS symptoms in some studies"]
+  }
+};
+
+{% if cycle_info %}
+(function () {
+  const info = phaseInfo["{{ cycle_info.phase }}"];
+  const wrap = document.getElementById('phaseCard');
+  wrap.innerHTML = `
+    <div class="eyebrow">Today</div>
+    <h2 style="font-size:1.3rem;font-weight:800;color:${info.color};margin-bottom:4px;">${info.emoji} ${info.label} — Cycle Day {{ cycle_info.day }}</h2>
+    <p style="color:var(--text-soft);font-size:0.85rem;margin-bottom:14px;">${info.desc} Next period expected around <strong>{{ cycle_info.next_period }}</strong> (based on a {{ cycle_info.cycle_length }}-day cycle).</p>
+    <p style="font-size:0.82rem;font-weight:700;color:var(--text-mid);margin-bottom:8px;">🍽️ Nutrition Focus For This Phase</p>
+    ${info.focus.map(t => `<div class="plan-tip"><span class="plan-tip-icon">🥗</span><div>${t}</div></div>`).join('')}
+  `;
+})();
+{% endif %}
+</script>
+{% endblock %}

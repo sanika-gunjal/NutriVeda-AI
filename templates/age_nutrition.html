@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% set active = "age-nutrition" %}
+{% block title %}Age-wise Nutrition Needs — NutriVeda AI{% endblock %}
+
+{% block body %}
+<div class="content-plain" style="background:var(--green-50);">
+<div style="max-width:900px;margin:0 auto;">
+
+  <div class="food-hero reveal in-view">
+    <div class="eyebrow" style="color:rgba(255,255,255,0.85);">🧬 Life Stage Nutrition</div>
+    <h1>Age-wise Nutrition Needs</h1>
+    <p>What the body needs changes a lot across life stages — from a baby's first foods to a senior's bone and muscle health. Pick a stage to see its priorities.</p>
+  </div>
+
+  <div class="card reveal in-view">
+    <div class="tab-bar" id="ageTabs" style="flex-wrap:wrap;">
+      <button class="tab active" data-age="infant">👶 Infant (0–1 yr)</button>
+      <button class="tab" data-age="child">🧒 Child (1–12 yrs)</button>
+      <button class="tab" data-age="teen">🧑 Teen (13–19 yrs)</button>
+      <button class="tab" data-age="adult">🧑‍💼 Adult (20–59 yrs)</button>
+      <button class="tab" data-age="senior">🧓 Senior (60+ yrs)</button>
+    </div>
+    <div id="ageResult"></div>
+  </div>
+
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const ageData = {
+  infant: {
+    title: "Infant (0–1 year)",
+    desc: "Breast milk / formula is the primary nutrition source for the first 6 months; solids are introduced gradually alongside it from ~6 months.",
+    needs: [["Breast milk / formula", "Exclusive for first 6 months — covers virtually all nutrient needs"],
+            ["Iron", "Iron stores from birth deplete by ~6 months — first solids should include iron-rich foods (ragi, dal water, mashed lentils)"],
+            ["Vitamin D", "Supplementation is commonly advised — check with your pediatrician"],
+            ["Healthy fats", "Crucial for rapid brain development — full-fat dairy once solids begin"]],
+    watch: ["Introduce one new food at a time to watch for allergies", "Avoid honey before 1 year (botulism risk)", "Avoid added salt/sugar in the first year", "Avoid cow's milk as a main drink before 1 year"]
+  },
+  child: {
+    title: "Child (1–12 years)",
+    desc: "Steady growth with big jumps in activity. Building good eating habits now shapes lifelong patterns.",
+    needs: [["Calcium & Vitamin D", "Milk, curd, ragi, eggs, sunlight — bone growth is rapid"],
+            ["Protein", "Dal, paneer, milk, eggs, nuts — for muscle and tissue growth"],
+            ["Iron", "Leafy greens, jaggery, dals — supports growth and concentration"],
+            ["Fibre & variety", "Fruits, vegetables, whole grains — establishes healthy habits and prevents constipation"]],
+    watch: ["Limit packaged/sugary snacks and drinks", "Involve kids in meal choices to build healthy habits early", "Watch for picky eating patterns — offer variety without forcing", "Regular meal timings support growth and attention"]
+  },
+  teen: {
+    title: "Teen (13–19 years)",
+    desc: "Puberty brings the fastest growth spurt outside infancy, plus rising academic/activity demands. Needs jump sharply, especially for girls (menstruation begins).",
+    needs: [["Iron", "Especially important for girls once periods start — leafy greens, jaggery, dals, pomegranate"],
+            ["Calcium", "Milk, curd, sesame — peak bone mass is built in the teen years"],
+            ["Protein", "Higher needs from growth spurts and activity — dal, eggs, paneer, milk"],
+            ["Overall calories", "Rise sharply with growth spurts and sports/activity"]],
+    watch: ["Skipping meals (common with school schedules) undermines growth", "Fad dieting or excessive restriction can affect growth and periods", "Excess processed/fast food and sugary drinks", "Body image pressure — food talk should stay supportive, not restrictive"]
+  },
+  adult: {
+    title: "Adult (20–59 years)",
+    desc: "Focus shifts to maintaining a healthy weight, preventing lifestyle diseases, and meeting activity-based energy needs.",
+    needs: [["Balanced macros", "Adequate protein, fibre, healthy fats matched to activity level"],
+            ["Iron (esp. women)", "Ongoing menstrual losses — leafy greens, dals, jaggery"],
+            ["Calcium", "Maintenance of bone density, especially important for women approaching menopause"],
+            ["Fibre & micronutrients", "Whole grains, vegetables, fruits — supports metabolic and heart health"]],
+    watch: ["Sedentary lifestyle + excess refined carbs/sugar raises lifestyle-disease risk", "Watch sodium if managing blood pressure", "Alcohol and smoking compound long-term risk", "Skipping meals due to work stress"]
+  },
+  senior: {
+    title: "Senior (60+ years)",
+    desc: "Appetite and digestion often reduce while the need for protein, calcium and certain vitamins actually rises to prevent muscle loss (sarcopenia) and bone weakening.",
+    needs: [["Protein", "Higher relative needs to fight age-related muscle loss — dal, paneer, milk, eggs, soft-cooked legumes"],
+            ["Calcium & Vitamin D", "Milk, curd, sunlight — to reduce fracture/osteoporosis risk"],
+            ["Vitamin B12", "Absorption reduces with age — dairy, eggs; supplementation is common if vegetarian"],
+            ["Fibre & fluids", "Whole grains, fruits, adequate water — constipation is more common with age"]],
+    watch: ["Reduced appetite can lead to under-eating — smaller, more frequent meals help", "Chewing/dental issues — soft, well-cooked textures may be needed", "Medication-nutrient interactions — check with a doctor", "Isolation at mealtimes can reduce food intake — social meals help"]
+  }
+};
+
+function renderAge(key) {
+  const d = ageData[key];
+  const wrap = document.getElementById('ageResult');
+  wrap.innerHTML = `
+    <div class="plan-card">
+      <h3 style="color:var(--green-800);font-weight:700;margin-bottom:6px;">${d.title}</h3>
+      <p style="color:var(--text-soft);font-size:0.88rem;margin-bottom:16px;">${d.desc}</p>
+
+      <p style="font-size:0.82rem;font-weight:700;color:var(--text-mid);margin-bottom:8px;">🎯 Priority Nutrients</p>
+      ${d.needs.map(([n, src]) => `<div class="plan-tip"><span class="plan-tip-icon">🥗</span><div><strong>${n}</strong> — ${src}</div></div>`).join('')}
+
+      <p style="font-size:0.82rem;font-weight:700;color:var(--text-mid);margin:16px 0 8px;">⚠️ Watch Out For</p>
+      ${d.watch.map(t => `<div class="plan-tip"><span class="plan-tip-icon">👀</span><div>${t}</div></div>`).join('')}
+    </div>
+  `;
+  wrap.firstElementChild.style.animation = 'slideUp 0.4s ease both';
+}
+
+document.querySelectorAll('#ageTabs .tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#ageTabs .tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderAge(btn.dataset.age);
+  });
+});
+renderAge('infant');
+</script>
+{% endblock %}

@@ -1,0 +1,55 @@
+<header class="nv9-nav" id="nv9-nav"><div class="nv9-progress" id="nv9-progress"></div>
+  <a href="/" class="nv9-brand" aria-label="NutriVeda AI home"><i data-feather="feather"></i><b>NutriVeda</b><em>AI</em></a>
+  <div class="nv9-links" id="nv9-links" role="navigation" aria-label="Primary"></div>
+  <button type="button" class="nv9-search" id="nv9-search" aria-label="Search features"><i data-feather="search"></i><span>Search features</span><kbd>M</kbd></button>
+  <div class="nv9-tools">
+    <button type="button" class="tb-guide" id="tb-guide" aria-label="Open AI video guide"><span class="dot"><i data-feather="play"></i></span><span class="t">AI Guide</span></button>
+    <div class="nv9-dd" id="nv9-lang"><button type="button" class="nv9-btn" aria-haspopup="true" aria-expanded="false" aria-label="Language"><i data-feather="globe"></i><span class="nv9-cur">English</span></button><div class="nv9-menu nv9-langmenu"></div></div>
+    <div class="nv9-dd" id="nv9-theme"><button type="button" class="nv9-btn" aria-haspopup="true" aria-expanded="false" aria-label="Theme"><i data-feather="droplet"></i><span class="nv9-cur">Theme</span></button><div class="nv9-menu nv9-thememenu"></div></div>
+    <div class="nv9-dd" id="nv9-profile"><button type="button" class="nv9-btn nv9-prof" aria-haspopup="true" aria-expanded="false" aria-label="Profile"><span class="nv9-av">{% if session.user_id %}{{ (session.user_name or 'U')[:1]|upper }}{% else %}<i data-feather="user"></i>{% endif %}</span><span class="nv9-cur">{% if session.user_id %}{{ session.user_name }}{% else %}Profile{% endif %}</span></button>
+      <div class="nv9-menu nv9-profmenu">
+      {% if session.user_id %}
+        <a href="/dashboard"><i data-feather="bar-chart-2"></i>Dashboard</a><a href="/form"><i data-feather="heart"></i>Health Data</a><a href="/food-log"><i data-feather="book-open"></i>Food Diary</a><a href="/immunity"><i data-feather="bookmark"></i>Saved Recipes</a><a href="/history"><i data-feather="clock"></i>History</a>
+        <button type="button" data-open="settings"><i data-feather="settings"></i>Settings</button><button type="button" data-open="theme"><i data-feather="droplet"></i>Theme</button><button type="button" data-open="lang"><i data-feather="globe"></i>Language</button>
+        <a href="/logout" class="danger"><i data-feather="log-out"></i>Logout</a>
+      {% else %}
+        <a href="/login"><i data-feather="log-in"></i>Log in</a><a href="/signup"><i data-feather="user-plus"></i>Sign up free</a>
+        <button type="button" data-open="theme"><i data-feather="droplet"></i>Theme</button><button type="button" data-open="lang"><i data-feather="globe"></i>Language</button>
+      {% endif %}
+      </div></div>
+    <button type="button" class="fl-orb" id="tb-menu" aria-label="Open navigation" aria-expanded="false" aria-controls="nvdrawer"><span></span><span></span><span></span></button>
+  </div>
+</header>
+<div class="nv9-mega" id="nv9-mega" role="region" aria-label="Feature menu"></div>
+<div class="nv9-scrim" id="nv9-scrim"></div>
+<div class="nvd-back" id="nvd-back"></div>
+<aside class="nvdrawer" id="nvdrawer" aria-label="Navigation" aria-hidden="true">
+  <div class="nvd-head">
+    <div class="nvd-logo"><i data-feather="feather"></i> NutriVeda <em>AI</em></div>
+    <button type="button" class="nvd-x" id="nvd-x" aria-label="Close navigation"><i data-feather="x"></i></button>
+  </div>
+  <div class="nvd-search"><i data-feather="search"></i><input id="nvd-q" type="search" placeholder="Search features… (press M)" aria-label="Search features" autocomplete="off"></div>
+  <div class="nvd-recent" id="nvd-recent"></div>
+  <div class="nvd-scroll" id="nvd-list"></div>
+  <div class="nvd-set">
+    <div class="nvd-sec">Language</div>
+    <div class="nvd-lang" id="nvd-lang"><button data-l="en">English</button><button data-l="mr">मराठी</button><button data-l="hi">हिंदी</button></div>
+    <div class="nvd-sec">Website style</div>
+    <div class="nvd-themes" id="nvd-themes"></div>
+  </div>
+  <div class="nvd-foot">
+    {% if session.user_id %}<a href="/dashboard"><i data-feather="user"></i> {{ session.user_name }}</a><a href="/logout"><i data-feather="log-out"></i> Log out</a>
+    {% else %}<a href="/login"><i data-feather="log-in"></i> Log in</a><a href="/signup" class="pri"><i data-feather="user-plus"></i> Sign up free</a>{% endif %}
+  </div>
+</aside>
+<aside class="guide" id="guide" aria-label="AI video guide">
+  <button type="button" class="guide-x" id="guide-x" aria-label="Close guide">✕</button>
+  <video id="guide-video" src="/static/videos/ai_guide.mp4" playsinline preload="metadata" controls></video>
+  <div class="guide-body">
+    <h4 id="guide-title">Welcome</h4><p id="guide-info"></p><ol id="guide-steps"></ol>
+    <div class="guide-actions">
+      <button type="button" class="pri" id="guide-play"><i data-feather="play"></i>Play &amp; read aloud</button>
+      <button type="button" id="guide-mute"><i data-feather="volume-2"></i>Mute</button>
+    </div>
+  </div>
+</aside>

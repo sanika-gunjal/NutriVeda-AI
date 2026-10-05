@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% set active = "smart-meal-planner" %}
+{% block title %}Smart Indian Meal Planner — NutriVeda AI{% endblock %}
+{% block body %}
+<section class="intel-hero planner-hero"><div class="section-wrap">
+<div class="eyebrow" data-i18n="planner.eyebrow">Advanced Personalisation</div>
+<h1 data-i18n="planner.title">Smart Indian Meal Planner</h1>
+<p data-i18n="planner.subtitle">Combine your goal, food preference and region to get a practical Indian meal framework. Use it as a starting point and personalise portions with a professional.</p>
+<form class="planner-controls" method="post">
+<label>Goal<select name="goal"><option value="balanced" {% if goal=='balanced' %}selected{% endif %}>Balanced</option><option value="weight-loss" {% if goal=='weight-loss' %}selected{% endif %}>Weight Loss</option><option value="weight-gain" {% if goal=='weight-gain' %}selected{% endif %}>Healthy Weight Gain</option><option value="high-protein" {% if goal=='high-protein' %}selected{% endif %}>Higher Protein</option></select></label>
+<label>Diet<select name="diet"><option>Vegetarian</option><option>Eggitarian</option><option>Non-vegetarian</option></select></label>
+<label>State<select name="state">{% for s in states %}<option {% if s==state %}selected{% endif %}>{{s}}</option>{% endfor %}</select></label>
+<button class="btn-primary" type="submit">✨ Build My Plan</button>
+</form></div></section>
+<section class="section-wrap">
+<div class="planner-summary"><span class="food-intel-kicker">PERSONALISED FRAMEWORK</span><h2>{{ plan.label }} · {{ state }}</h2><p>Use the regional food intelligence below to swap meals with foods familiar to your kitchen.</p></div>
+<div class="meal-day-grid">{% for meal,items in [('Breakfast',plan.breakfast),('Lunch',plan.lunch),('Snack',plan.snack),('Dinner',plan.dinner)] %}
+<article class="meal-card"><div class="meal-icon">{{ {'Breakfast':'🌅','Lunch':'☀️','Snack':'🍎','Dinner':'🌙'}[meal] }}</div><h3>{{meal}}</h3>{% for x in items %}<div class="meal-option">{{x}}</div>{% endfor %}</article>{% endfor %}</div>
+<h2 class="subsection-title">Swap with foods from {{state}}</h2>
+<div class="food-intel-grid">{% for r in regional_foods %}<article class="food-intel-card"><div class="food-card-icon">🍛</div><div class="food-card-content"><span class="mini-label">{{r[3]}}</span><h3>{{r[0]}}</h3><p>{{r[1]}}</p><div class="nutrient-tags">{% for n in r[2].split(', ') %}<span>{{n}}</span>{% endfor %}</div><a class="learn-link" href="{{r[4]}}" target="_blank" rel="noopener">▶ Learn recipe on YouTube</a></div></article>{% endfor %}</div>
+<div class="advanced-feature-strip"><div>💧 <strong>Hydration check</strong><span>Pair your plan with regular water intake.</span></div><div>🥗 <strong>Plate balance</strong><span>Aim for vegetables + protein + whole-grain/other carbohydrate + healthy fat.</span></div><div>📊 <strong>Track & improve</strong><span>Use Food Diary and Dashboard to compare your routine over time.</span></div></div>
+</section>
+{% endblock %}

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}NutriVeda AI{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@500;700&family=Outfit:wght@300;500;700&family=Sora:wght@500;700&family=Rozha+One&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Mukta:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/enhance.css">
+  <link rel="stylesheet" href="/static/theme.css">
+  <link rel="stylesheet" href="/static/nv9.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><circle cx='24' cy='24' r='19' fill='none' stroke='%237c3aed' stroke-width='2.4' opacity='0.4'/><circle cx='24' cy='24' r='13' fill='none' stroke='%237c3aed' stroke-width='2.4'/><circle cx='16' cy='16.5' r='3.4' fill='none' stroke='%237c3aed' stroke-width='2.4'/><circle cx='31' cy='30' r='3' fill='%237c3aed'/></svg>">
+  <script>
+    // Apply saved theme + language before first paint to avoid a flash
+    (function () {
+      try {
+        var t = localStorage.getItem('nutrisense_theme');
+        if (t && ['ayurveda','neo','zen','midnight','bazaar','saffron','ocean','forest','rose'].indexOf(t) > -1) document.documentElement.setAttribute('data-theme', t);
+        var l = localStorage.getItem('nutrisense_lang') || 'en';
+        document.documentElement.setAttribute('lang', l);
+        if (localStorage.getItem('nutrisense_senior') === 'on') {
+          document.documentElement.classList.add('senior-mode');
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+
+<body>
+  {% include "_topbar.html" %}
+
+
+  <div id="reminder-banner" class="reminder-banner" data-msg-id="{{ reminder.text|length }}">
+    <span class="reminder-icon">{{ reminder.icon }}</span>
+    <span class="reminder-text">{{ reminder.text }}</span>
+    <button type="button" class="reminder-close" onclick="dismissReminder()" aria-label="Dismiss">✕</button>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div id="global-flash-messages" style="max-width:900px;margin:14px auto 0;padding:0 20px;">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'error' if category == 'error' else category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% block body %}
+  <div class="{% block body_class %}content-plain{% endblock %}">
+    {% block content %}{% endblock %}
+  </div>
+  {% endblock %}
+
+
+  <footer>
+    © 2025 <span>NutriVeda AI</span> · <span data-i18n="footer.tagline">Intelligent Nutrition Platform</span> · Made with 💚
+    <a href="/admin" style="margin-left:10px;opacity:0.55;font-size:0.75rem;">Admin</a>
+  </footer>
+
+  <!-- AI Chatbot Assistant widget -->
+  <div id="chatbot-widget" class="chatbot-widget">
+    <button id="chatbot-toggle" class="chatbot-toggle" aria-label="Open chat assistant">🤖</button>
+    <div id="chatbot-panel" class="chatbot-panel">
+      <div class="chatbot-header">
+        <span>🤖 <span data-i18n="chatbot.title">NutriBot Assistant</span></span>
+        <button type="button" onclick="toggleChatbot(false)" aria-label="Close">✕</button>
+      </div>
+      <div id="chatbot-messages" class="chatbot-messages">
+        <div class="chat-msg chat-bot" data-i18n="chatbot.greeting">Hi! Ask me about a nutrient, deficiency, BMI, or how to log a meal. 🥗</div>
+      </div>
+      <form id="chatbot-form" class="chatbot-form">
+        <button type="button" id="voice-input-btn" title="Speak your question (Hindi/Marathi/English)" aria-label="Voice input">🎤</button>
+        <input id="chatbot-input" type="text" placeholder="Type your question..." data-i18n-placeholder="chatbot.placeholder" autocomplete="off" />
+        <button type="submit">➤</button>
+      </form>
+    </div>
+  </div>
+
+  <script>window.NV_ACTIVE={{ (active or "home")|tojson }};</script>
+  <script src="/static/script.js" defer></script>
+  <script src="/static/enhance.js" defer></script>
+  <script src="/static/i18n_rows.js" defer></script>
+  <script src="/static/app2.js" defer></script>
+  <script src="/static/nv9.js" defer></script>
+  <script>
+    // Render Feather icons once the DOM (and script.js's dynamic bits) are ready
+    (function () {
+      function renderFeather() { if (window.feather) feather.replace({ 'stroke-width': 2 }); }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', renderFeather);
+      } else {
+        renderFeather();
+      }
+      window.addEventListener('load', renderFeather);
+    })();
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

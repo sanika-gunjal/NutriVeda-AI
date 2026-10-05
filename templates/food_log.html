@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% set active = "food-log" %}
+{% block title %}Food Diary — NutriVeda AI{% endblock %}
+
+{% block body %}
+<div class="content-plain" style="background:var(--green-50);">
+<div style="max-width:900px;margin:0 auto;">
+<div class="food-hero reveal in-view">
+  <div class="eyebrow" style="color:rgba(255,255,255,0.85);">🍽️ Meal Diary</div>
+  <h1>Track what you eat, every day</h1>
+  <p>Log meals manually or scan a packaged product's barcode to auto-fill its name and calories.</p>
+  <div class="calorie-pill">🔥 Today's total: {{ today_calories }} kcal · {{ today_entries|length }} item(s)</div>
+</div>
+
+{% if user_allergies %}
+<div class="alert alert-warn reveal in-view" style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+  <span>🚨 We'll flag meals that match: {% for a in user_allergies %}<strong>{{ a.allergen }}</strong>{% if not loop.last %}, {% endif %}{% endfor %}</span>
+  <a href="/allergy-tracker" style="font-weight:700;text-decoration:underline;">Manage list →</a>
+</div>
+{% else %}
+<div class="alert alert-info reveal in-view" style="margin-bottom:16px;">
+  💡 Have a food allergy? <a href="/allergy-tracker" style="font-weight:700;text-decoration:underline;">Add it to your Allergy Tracker</a> and we'll warn you if it shows up here.
+</div>
+{% endif %}
+
+<div class="card reveal in-view" style="margin-bottom:24px;">
+  <h3 style="color:var(--green-900);font-weight:700;margin-bottom:16px;">➕ Add a meal</h3>
+  <form method="post">
+    <input type="hidden" id="source" name="source" value="manual">
+    <div class="meal-form-grid">
+      <div class="form-group">
+        <label>Meal</label>
+        <select name="meal_type">
+          <option>Breakfast</option>
+          <option>Lunch</option>
+          <option>Dinner</option>
+          <option>Snack</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Food name</label>
+        <input type="text" id="food_name" name="food_name" placeholder="e.g. Moong Dal Khichdi" required>
+      </div>
+      <div class="form-group">
+        <label>Quantity</label>
+        <input type="text" id="quantity" name="quantity" placeholder="e.g. 1 bowl">
+      </div>
+      <div class="form-group">
+        <label>Calories (approx.)</label>
+        <input type="number" id="calories" name="calories" placeholder="e.g. 250">
+      </div>
+      <button class="btn" type="submit">Log It 🍴</button>
+    </div>
+  </form>
+
+  <div class="scan-btn-row">
+    <button type="button" class="btn-outline" onclick="startBarcodeScanner()">📷 Scan Barcode</button>
+    <button type="button" class="btn-outline" onclick="stopBarcodeScanner()">⏹ Stop Camera</button>
+    <label class="btn-outline" style="cursor:pointer;">
+      🖼️ Photo Scan
+      <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="handlePhotoScan(this)">
+    </label>
+  </div>
+  <div id="barcode-reader" style="display:none;"></div>
+  <p style="font-size:0.76rem;color:var(--text-mute);margin-top:10px;">
+    Barcode scanning looks up packaged products via the free
+    <a href="https://world.openfoodfacts.org/" target="_blank" style="color:var(--green-700);font-weight:600;">Open Food Facts</a>
+    database. Photo scan captures a picture and asks you to confirm the food name (automatic food recognition from a
+    photo needs a vision-AI API key — see README).
+  </p>
+</div>
+
+<div class="card reveal in-view">
+  <h3 style="color:var(--green-900);font-weight:700;margin-bottom:16px;">📋 Your recent entries</h3>
+  {% if entries %}
+    {% for e in entries %}
+    <div class="meal-entry">
+      <span class="meal-type-badge {{ e.meal_type }}">{{ e.meal_type }}</span>
+      <div class="meal-entry-name">
+        {{ e.food_name }}
+        <div class="meal-entry-meta">{{ e.quantity or '' }} · {{ e.logged_at[:16].replace('T', ' ') }}{% if e.source != 'manual' %} · via {{ e.source }}{% endif %}</div>
+      </div>
+      {% if e.calories %}<span class="meal-entry-cal">{{ e.calories }} kcal</span>{% endif %}
+      <form method="post" action="/food-log/delete/{{ e.id }}">
+        <button type="submit" class="meal-del-btn" title="Delete">🗑️</button>
+      </form>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-state">No meals logged yet — add your first one above! 🥗</div>
+  {% endif %}
+</div>
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+{% endblock %}

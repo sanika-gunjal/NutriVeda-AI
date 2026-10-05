@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% set active = "form" %}
+{% block title %}Symptom Checker — NutriVeda AI{% endblock %}
+
+{% block body %}
+<div class="content-plain" style="background:linear-gradient(160deg, var(--ivory), var(--green-50)); position:relative; overflow:hidden;">
+  <div class="ambient-blobs"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
+  <div class="card card-wide reveal in-view" style="position:relative;z-index:1;">
+
+    <div class="eyebrow">Step 1 — Symptom Checker</div>
+    <h2 style="font-size:1.5rem;font-weight:800;color:var(--green-900);margin-bottom:4px;">What are you experiencing?</h2>
+    <p style="color:var(--text-soft);margin-bottom:20px;">Select all symptoms that apply to you. We'll map them to possible nutritional deficiencies.</p>
+
+    <form action="/result" method="post" id="symptomForm">
+      <input type="hidden" name="name" value="{{ session.user_name or 'Guest User' }}">
+      <input type="hidden" name="height" value="170">
+      <input type="hidden" name="weight" value="65">
+
+      <!-- Counter -->
+      <div style="display:flex;align-items:center;margin-bottom:14px;">
+        <span style="font-size:0.85rem;color:var(--text-mid);font-weight:600;">Selected:</span>
+        <span class="symptom-count-badge" id="countBadge">0</span>
+      </div>
+
+      <div class="sx-tools"><input type="search" id="sxSearch" placeholder="Search a symptom, e.g. fatigue" aria-label="Search symptoms"></div>
+      <div class="sx-cats" id="sxCats"></div>
+      <div class="symptom-grid">
+        {% set icons = {
+          'fatigue': '😴',
+          'hairfall': '💇',
+          'pale skin': '👤',
+          'weak immunity': '🛡️',
+          'bone pain': '🦴',
+          'muscle cramps': '💪',
+          'weak bones': '⚠️',
+          'back pain': '🔙',
+          'low immunity': '🛡️',
+          'memory loss': '🧠',
+          'tingling hands': '🤲',
+          'muscle loss': '📉',
+          'weakness': '⬇️',
+          'slow recovery': '🐢'
+        } %}
+        {% for symptom in symptoms %}
+        <div class="symptom-chip">
+          <input type="checkbox" name="symptoms" value="{{ symptom }}" id="s_{{ loop.index }}">
+          <label for="s_{{ loop.index }}">
+            <span>{{ icons.get(symptom, '🔹') }}</span>
+            {{ symptom | title }}
+          </label>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="sx-sev"><label for="sev">How strong?</label>
+        <select id="sev" name="severity"><option>Mild</option><option>Moderate</option><option>Strong</option></select>
+        <label for="dur">For how long?</label>
+        <select id="dur" name="duration"><option>Days</option><option>Weeks</option><option>Months</option></select></div>
+      <div class="sx-live" id="sxLive"><h4>Live match</h4><div id="sxBars"><em style="color:var(--text-soft)">Tick symptoms to see which nutrients they point to.</em></div></div>
+      <div class="sx-flag" id="sxFlag">⚠ Strong symptoms lasting months, or chest pain, fainting or breathlessness, need a doctor's visit. This tool cannot replace one.</div>
+      <div style="margin-top:22px;display:flex;gap:12px;flex-wrap:wrap;">
+        <button type="submit" class="btn" id="analyzeBtn">
+          🔍 Analyse Symptoms
+        </button>
+        <button type="button" class="btn-outline" id="clearBtn">
+          Clear All
+        </button>
+      </div>
+
+    </form>
+
+    <div class="alert alert-warn" style="margin-top:18px;">
+      ⚕️ This tool provides general nutritional guidance only — not a medical diagnosis. Consult a doctor for clinical advice.
+    </div>
+
+    <div style="margin-top:14px;text-align:center;">
+      <a href="/nutrients" class="btn-outline" style="font-size:0.82rem;">🧬 Or browse the full Vitamin & Mineral Encyclopedia →</a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const boxes = document.querySelectorAll('input[type="checkbox"]');
+const badge = document.getElementById('countBadge');
+const analyzeBtn = document.getElementById('analyzeBtn');
+
+function updateCount() {
+  const n = [...boxes].filter(b => b.checked).length;
+  badge.textContent = n;
+  analyzeBtn.disabled = n === 0;
+  analyzeBtn.style.opacity = n === 0 ? '0.5' : '1';
+}
+
+boxes.forEach(b => b.addEventListener('change', updateCount));
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  boxes.forEach(b => b.checked = false);
+  updateCount();
+});
+
+updateCount();
+
+// v7: search, body-area filters, live deficiency match, safety flag
+const DDB={{ ddb|tojson }};
+const AREA={Energy:['fatigue','weakness','slow recovery','weak immunity','low immunity'],'Hair & skin':['hairfall','pale skin'],'Bones & joints':['bone pain','weak bones','back pain','muscle cramps'],'Muscle':['muscle loss','muscle cramps','weakness','slow recovery'],'Mind & nerves':['memory loss','tingling hands']};
+const chips=[...document.querySelectorAll('.symptom-chip')], val=c=>c.querySelector('input').value;
+let area='All';
+const cats=document.getElementById('sxCats');
+cats.innerHTML=['All',...Object.keys(AREA)].map(a=>`<button type="button" data-a="${a}" class="${a==='All'?'on':''}">${a}</button>`).join('');
+function filt(){const q=document.getElementById('sxSearch').value.toLowerCase();
+  chips.forEach(c=>{const v=val(c);const ok=(area==='All'||(AREA[area]||[]).includes(v))&&v.includes(q);c.style.display=ok?'':'none'})}
+cats.onclick=e=>{if(!e.target.dataset.a)return;area=e.target.dataset.a;cats.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===e.target));filt()};
+document.getElementById('sxSearch').oninput=filt;
+function live(){const sel=chips.filter(c=>c.querySelector('input').checked).map(val);
+  const rows=Object.entries(DDB).map(([k,v])=>[k,v.filter(s=>sel.includes(s)).length,v.length]).filter(r=>r[1]).sort((a,b)=>b[1]/b[2]-a[1]/a[2]);
+  document.getElementById('sxBars').innerHTML=rows.length?rows.map(r=>`<div class="sx-bar"><span style="width:150px">${r[0]}</span><i style="width:${Math.round(r[1]/r[2]*100)}%"></i><span>${r[1]}/${r[2]}</span></div>`).join(''):'<em style="color:var(--text-soft)">Tick symptoms to see which nutrients they point to.</em>';
+  const strong=document.getElementById('sev').value==='Strong'&&document.getElementById('dur').value==='Months';
+  document.getElementById('sxFlag').style.display=strong?'block':'none'}
+boxes.forEach(b=>b.addEventListener('change',live));['sev','dur'].forEach(i=>document.getElementById(i).onchange=live);
+document.getElementById('clearBtn').addEventListener('click',live);
+</script>
+{% endblock %}
